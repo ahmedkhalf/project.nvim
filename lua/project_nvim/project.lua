@@ -63,7 +63,10 @@ function M.set_pwd(dir)
       end
 
       M.last_dir = dir
-      print("Set PWD to", dir)
+
+      if config.options.silent_chdir == false then
+        print("Set CWD to", dir)
+      end
     end
     return true
   end

@@ -4,7 +4,9 @@ M.options = {}
 
 local defaults = {
   -- manual_mode = false,
-  detection_methods = { "lsp" }
+  detection_methods = { "lsp", "pattern" },
+  -- patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", "package.json" },
+  silent_chdir = true,
 }
 
 M.setup = function (options)
