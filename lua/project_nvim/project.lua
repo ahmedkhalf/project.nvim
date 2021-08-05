@@ -24,6 +24,64 @@ function M.find_lsp_root()
   return nil
 end
 
+function M.debug_write(string)
+  local file = io.open("/home/ahmedk/Documents/Projects/Nvim/project.nvim/debug", "a")
+  file:write(string)
+  file:close()
+end
+
+function M.find_pattern_root()
+  -- Sacrificing readability for speed :(
+  -- Good luck
+
+  local function find(file_dir)
+    vim.loop.fs_opendir(file_dir, function(err_open, dir)
+      if err_open ~= nil then
+        return
+      end
+
+      local function read(err_read, entries)
+        if err_read ~= nil then
+          return
+        end
+
+        if entries ~= nil then
+          for _, entry in ipairs(entries) do
+            for _, pattern in ipairs(config.options.patterns) do
+              if entry.name:match(pattern) == entry.name then
+
+                -- TODO: stop using timer
+                local timer = vim.loop.new_timer()
+                timer:start(0, 0, vim.schedule_wrap(function()
+                  M.set_pwd(file_dir)
+                end))
+                return
+              end
+            end
+          end
+          dir:readdir(read)
+        else
+          dir:closedir()
+
+          -- TODO: Stop using vim.fn as well as timer
+          local timer = vim.loop.new_timer()
+          timer:start(0, 0, vim.schedule_wrap(function()
+            local parent = vim.fn.fnamemodify(file_dir, ':h')
+            if parent == file_dir then
+              return
+            end
+            find(parent)
+          end))
+        end
+      end
+
+      dir:readdir(read)
+    end, 50)
+  end
+
+  find(vim.fn.expand('%:p:h', true))
+end
+
 ---@diagnostic disable-next-line: unused-local
 local on_attach_lsp = function(client, bufnr)
   M.on_buf_enter() -- Recalculate root dir after lsp attaches
@@ -74,14 +132,23 @@ function M.set_pwd(dir)
   return false
 end
 
-function M.on_buf_enter()
+function M.find_root_dir()
   for _, detection_method in ipairs(config.options.detection_methods) do
     if detection_method == "lsp" then
-      if M.set_pwd(M.find_lsp_root()) then
-        return
+      local root = M.find_lsp_root()
+      if root ~= nil then
+        return root
       end
+    elseif detection_method == "pattern" then
+      M.find_pattern_root()
     end
   end
+
+  return nil
+end
+
+function M.on_buf_enter()
+  M.set_pwd(M.find_root_dir())
 end
 
 function M.init()
