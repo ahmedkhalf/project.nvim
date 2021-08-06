@@ -30,6 +30,11 @@ function M.debug_write(string)
   file:close()
 end
 
+function M.async_call(func)
+  local timer = vim.loop.new_timer()
+  timer:start(0, 0, vim.schedule_wrap(func))
+end
+
 function M.find_pattern_root()
   -- Sacrificing readability for speed :(
   -- Good luck
@@ -49,12 +54,9 @@ function M.find_pattern_root()
           for _, entry in ipairs(entries) do
             for _, pattern in ipairs(config.options.patterns) do
               if entry.name:match(pattern) == entry.name then
-
-                -- TODO: stop using timer
-                local timer = vim.loop.new_timer()
-                timer:start(0, 0, vim.schedule_wrap(function()
-                  M.set_pwd(file_dir)
-                end))
+                M.async_call(function()
+                  M.set_pwd(file_dir, "pattern " .. pattern)
+                end)
                 return
               end
             end
