@@ -134,12 +134,40 @@ function M.set_pwd(dir, method)
   return false
 end
 
-function M.find_root_dir()
+function M.is_file()
+  local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
+  local buf_name = vim.api.nvim_buf_get_name(0)
+
+  local whitelisted_buf_type = { "", "acwrite" }
+  local is_in_whitelist = false
+  for _, wtype in ipairs(whitelisted_buf_type) do
+    if buf_type == wtype then
+      is_in_whitelist = true
+      break
+    end
+  end
+  if not is_in_whitelist then
+    return false
+  end
+
+  if buf_name == "" then
+    return false
+  end
+
+  return true
+end
+
+function M.on_buf_enter()
+  if not M.is_file() then
+    return
+  end
+
   for _, detection_method in ipairs(config.options.detection_methods) do
     if detection_method == "lsp" then
       local root = M.find_lsp_root()
       if root ~= nil then
-        return root
+        M.set_pwd(root, "lsp")
+        return -- avoid any further calculations if lsp found
       end
     elseif detection_method == "pattern" then
       M.find_pattern_root()
@@ -147,10 +175,6 @@ function M.find_root_dir()
   end
 
   return nil
-end
-
-function M.on_buf_enter()
-  M.set_pwd(M.find_root_dir())
 end
 
 function M.init()
