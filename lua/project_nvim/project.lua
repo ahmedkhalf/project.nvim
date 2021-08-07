@@ -24,64 +24,67 @@ function M.find_lsp_root()
   return nil
 end
 
-function M.debug_write(string)
-  local file = io.open("/home/ahmedk/Documents/Projects/Nvim/project.nvim/debug", "a")
-  file:write(string)
-  file:close()
-end
-
-function M.async_call(func)
-  local timer = vim.loop.new_timer()
-  timer:start(0, 0, vim.schedule_wrap(func))
-end
-
 function M.find_pattern_root()
-  -- Sacrificing readability for speed :(
-  -- Good luck
+  local work_ctx = vim.loop.new_work(function(search_dir, ...)
+    local uv = require("luv")
+    local patterns = {...}
 
-  local function find(file_dir)
-    vim.loop.fs_opendir(file_dir, function(err_open, dir)
-      if err_open ~= nil then
-        return
+    local function find(file_dir)
+      local dir = uv.fs_scandir(file_dir)
+      if dir == nil then
+        return nil -- nil means error
       end
 
-      local function read(err_read, entries)
-        if err_read ~= nil then
-          return
+      while true do
+        local file = uv.fs_scandir_next(dir)
+        if file == nil then
+          return false
         end
 
-        if entries ~= nil then
-          for _, entry in ipairs(entries) do
-            for _, pattern in ipairs(config.options.patterns) do
-              if entry.name:match(pattern) == entry.name then
-                M.async_call(function()
-                  M.set_pwd(file_dir, "pattern " .. pattern)
-                end)
-                return
-              end
-            end
+        for _, pattern in ipairs(patterns) do
+          if file:match(pattern) == file then
+            return true, pattern
           end
-          dir:readdir(read)
-        else
-          dir:closedir()
-
-          -- TODO: Stop using vim.fn as well as timer
-          local timer = vim.loop.new_timer()
-          timer:start(0, 0, vim.schedule_wrap(function()
-            local parent = vim.fn.fnamemodify(file_dir, ':h')
-            if parent == file_dir then
-              return
-            end
-            find(parent)
-          end))
         end
       end
 
-      dir:readdir(read)
-    end, 50)
-  end
+      return false
+    end
 
-  find(vim.fn.expand('%:p:h', true))
+    local function get_parent(path)
+      path = path:match("^(.*)/")
+      if path == "" then
+          path = "/"
+      end
+      return path
+    end
+
+    while true do
+      local found, pattern = find(search_dir)
+
+      if found then
+        return search_dir, pattern
+      elseif found == nil then
+        return nil
+      end
+
+      local parent = get_parent(search_dir)
+      if parent == search_dir then
+        return nil
+      end
+
+      search_dir = parent
+    end
+
+    return 1 -- must return something otherwise Segmentation fault: #561 luv
+  end, vim.schedule_wrap(function(path, pattern)
+    if type(path) == "string" then
+      M.set_pwd(path, "pattern " .. pattern)
+    end
+  end))
+
+  local file_dir = vim.fn.expand('%:p:h', true)
+  work_ctx:queue(file_dir, unpack(config.options.patterns))
 end
 
 ---@diagnostic disable-next-line: unused-local
@@ -173,8 +176,6 @@ function M.on_buf_enter()
       M.find_pattern_root()
     end
   end
-
-  return nil
 end
 
 function M.init()
