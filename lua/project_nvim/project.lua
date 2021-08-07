@@ -161,6 +161,10 @@ function M.is_file()
 end
 
 function M.on_buf_enter()
+  if vim.v.vim_did_enter == 0 then
+    return
+  end
+
   if not M.is_file() then
     return
   end
@@ -179,7 +183,7 @@ function M.on_buf_enter()
 end
 
 function M.init()
-  vim.cmd('autocmd BufEnter * lua require("project_nvim.project").on_buf_enter()')
+  vim.cmd('autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()')
 
   for _, detection_method in ipairs(config.options.detection_methods) do
     if detection_method == "lsp" then
