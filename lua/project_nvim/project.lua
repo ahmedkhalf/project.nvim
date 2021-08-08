@@ -131,9 +131,8 @@ function M.set_pwd(dir, method)
       if config.options.silent_chdir == false then
         print("Set CWD to", dir, "using", method)
       end
-
-      table.insert(util.session_projects, dir)
     end
+    table.insert(util.session_projects, dir)
     return true
   end
 

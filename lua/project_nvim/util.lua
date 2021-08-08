@@ -105,6 +105,8 @@ function M.write_projects_to_history()
   local file = open_history("w")
 
   if file ~= nil then
+    M.recent_projects = M.recent_projects or {}
+
     -- Merge recent_projects and session_projects in tbl
     local tbl = {}
     local n = 0
