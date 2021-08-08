@@ -1,4 +1,5 @@
 local config = require("project_nvim.config")
+local util = require("project_nvim.util")
 local M = {}
 
 -- Internal states
@@ -130,6 +131,8 @@ function M.set_pwd(dir, method)
       if config.options.silent_chdir == false then
         print("Set CWD to", dir, "using", method)
       end
+
+      table.insert(util.session_projects, dir)
     end
     return true
   end
@@ -183,13 +186,18 @@ function M.on_buf_enter()
 end
 
 function M.init()
-  vim.cmd('autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()')
+  vim.cmd [[
+    autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
+    autocmd VimLeave * lua require("project_nvim.util").write_projects_to_history()
+  ]]
 
   for _, detection_method in ipairs(config.options.detection_methods) do
     if detection_method == "lsp" then
       M.attach_to_lsp()
     end
   end
+
+  util.read_projects_from_history()
 end
 
 return M
