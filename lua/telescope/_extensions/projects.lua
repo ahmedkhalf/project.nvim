@@ -34,6 +34,11 @@ local function projects(opts)
 
   local results = util.get_recent_projects()
 
+  -- Reverse results
+  for i=1, math.floor(#results / 2) do
+    results[i], results[#results - i + 1] = results[#results - i + 1], results[i]
+  end
+
   pickers.new(opts, {
     prompt_title = "Recent Projects",
     finder = finders.new_table {
