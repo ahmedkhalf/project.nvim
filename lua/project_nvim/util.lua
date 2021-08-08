@@ -99,12 +99,7 @@ function M.read_projects_from_history()
   end)
 end
 
-function M.write_projects_to_history()
-  -- Unlike read projects, write projects is synchronous
-  -- because it runs when vim ends
-  local file = open_history("w")
-
-  if file ~= nil then
+local function sanitize_projects()
     M.recent_projects = M.recent_projects or {}
 
     -- Merge recent_projects and session_projects in tbl
@@ -131,6 +126,20 @@ function M.write_projects_to_history()
         cache_dict[v] = cache_dict[v] - 1
       end
     end
+    return res
+end
+
+function M.get_recent_projects()
+  return sanitize_projects()
+end
+
+function M.write_projects_to_history()
+  -- Unlike read projects, write projects is synchronous
+  -- because it runs when vim ends
+  local file = open_history("w")
+
+  if file ~= nil then
+    local res = sanitize_projects()
 
     -- Trim table to last 100 entries
     local tbl_out = {}
@@ -153,7 +162,6 @@ function M.write_projects_to_history()
     uv.fs_write(file, out)
     uv.fs_close(file)
   end
-
 end
 
 return M
