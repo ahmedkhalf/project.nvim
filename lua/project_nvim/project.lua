@@ -1,5 +1,5 @@
 local config = require("project_nvim.config")
-local util = require("project_nvim.util")
+local history = require("project_nvim.utils.history")
 local M = {}
 
 -- Internal states
@@ -132,7 +132,7 @@ function M.set_pwd(dir, method)
         print("Set CWD to", dir, "using", method)
       end
     end
-    table.insert(util.session_projects, dir)
+    table.insert(history.session_projects, dir)
     return true
   end
 
@@ -187,7 +187,7 @@ end
 function M.init()
   vim.cmd [[
     autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
-    autocmd VimLeave * lua require("project_nvim.util").write_projects_to_history()
+    autocmd VimLeave * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
 
   for _, detection_method in ipairs(config.options.detection_methods) do
@@ -196,7 +196,7 @@ function M.init()
     end
   end
 
-  util.read_projects_from_history()
+  history.read_projects_from_history()
 end
 
 return M

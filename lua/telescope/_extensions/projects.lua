@@ -10,7 +10,7 @@ local config = require("telescope.config").values
 local actions = require "telescope.actions"
 local entry_display = require "telescope.pickers.entry_display"
 
-local util = require("project_nvim.util")
+local history = require("project_nvim.utils.history")
 
 ---Main entrypoint for Telescope.
 ---@param opts table
@@ -32,7 +32,7 @@ local function projects(opts)
     }
   end
 
-  local results = util.get_recent_projects()
+  local results = history.get_recent_projects()
 
   -- Reverse results
   for i=1, math.floor(#results / 2) do
