@@ -1,3 +1,4 @@
+local path = require("project_nvim.utils.path")
 local uv = vim.loop
 M = {}
 
@@ -5,17 +6,13 @@ M.recent_projects = nil -- projects from previous neovim sessions
 M.session_projects = {} -- projects from current neovim session
 
 local function open_history(mode, callback)
-  local datapath = vim.fn.stdpath("data")
-  local projectpath = datapath .. "/project_nvim"
-  local historypath = projectpath .. "/project_history"
-
   if callback ~= nil then -- async
-    uv.fs_mkdir(projectpath, 448, function(_, _) -- make sure project path exists
-      uv.fs_open(historypath, mode, 438, callback)
+    uv.fs_mkdir(path.projectpath, 448, function(_, _) -- make sure project path exists
+      uv.fs_open(path.historypath, mode, 438, callback)
     end)
   else -- sync
-    uv.fs_mkdir(projectpath, 448) -- make sure project path exists
-    return uv.fs_open(historypath, mode, 438)
+    uv.fs_mkdir(path.projectpath, 448) -- make sure project path exists
+    return uv.fs_open(path.historypath, mode, 438)
   end
 end
 
@@ -28,8 +25,8 @@ local function deserialize_history(history_data)
     ---@diagnostic disable-next-line: redefined-local
     local uv = require("luv")
 
-    local function dir_exists(path)
-      local stat = uv.fs_stat(path)
+    local function dir_exists(dir)
+      local stat = uv.fs_stat(dir)
       if stat ~= nil and stat.type == "directory" then
         return true
       end
