@@ -7,12 +7,12 @@ M.session_projects = {} -- projects from current neovim session
 
 local function open_history(mode, callback)
   if callback ~= nil then -- async
-    uv.fs_mkdir(path.projectpath, 448, function(_, _) -- make sure project path exists
-      uv.fs_open(path.historypath, mode, 438, callback)
+    path.create_scaffolding(function(_, _)
+      uv.fs_open(path.historyfile, mode, 438, callback)
     end)
   else -- sync
-    uv.fs_mkdir(path.projectpath, 448) -- make sure project path exists
-    return uv.fs_open(path.historypath, mode, 438)
+    path.create_scaffolding()
+    return uv.fs_open(path.historyfile, mode, 438)
   end
 end
 

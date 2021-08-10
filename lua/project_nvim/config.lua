@@ -6,8 +6,8 @@ local defaults = {
   -- manual_mode = false,
   detection_methods = { "lsp", "pattern" },
   patterns = { ".git", "_darcs", ".hg", ".bzr", ".svn", "Makefile", "package.json" },
-  -- buftype_exclude = { "NvimTree", "TelescopePrompt", "dashboard", "help" },
   silent_chdir = true,
+  session_options = { "buffers", "curdir", "tabpages", "winsize" },
 }
 
 M.setup = function (options)

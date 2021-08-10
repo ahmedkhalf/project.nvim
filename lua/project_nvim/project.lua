@@ -4,7 +4,7 @@ local M = {}
 
 -- Internal states
 M.attached_lsp = false
-M.last_dir = nil
+M.last_project = nil
 
 function M.find_lsp_root()
   -- Get lsp client for current buffer
@@ -117,6 +117,9 @@ end
 
 function M.set_pwd(dir, method)
   if dir ~= nil then
+    M.last_project = dir
+    table.insert(history.session_projects, dir)
+
     if vim.fn.getcwd() ~= dir then
       vim.api.nvim_set_current_dir(dir)
 
@@ -126,13 +129,10 @@ function M.set_pwd(dir, method)
         pcall(nvim_tree.change_dir, dir)
       end
 
-      M.last_dir = dir
-
       if config.options.silent_chdir == false then
         print("Set CWD to", dir, "using", method)
       end
     end
-    table.insert(history.session_projects, dir)
     return true
   end
 
