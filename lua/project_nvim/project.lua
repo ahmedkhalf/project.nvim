@@ -47,19 +47,17 @@ function M.find_pattern_root()
 
       local dir = uv.fs_scandir(file_dir)
       if dir == nil then
-        return false
+        return
       end
 
       while true do
         local file = uv.fs_scandir_next(dir)
         if file == nil then
-          return false
+          return
         end
 
         table.insert(curr_dir_cache, file)
       end
-
-      return false
     end
 
     local function is(dir, identifier)
@@ -89,7 +87,7 @@ function M.find_pattern_root()
         get_files(dir)
       end
       for _, file in ipairs(curr_dir_cache) do
-        if file:match(identifier) then
+        if file:match(identifier) == file then
           return true
         end
       end
