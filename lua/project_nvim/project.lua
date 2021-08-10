@@ -30,27 +30,8 @@ function M.find_pattern_root()
     local uv = require("luv")
     local patterns = {...}
 
-    local function find(file_dir)
-      local dir = uv.fs_scandir(file_dir)
-      if dir == nil then
-        return nil -- nil means error
-      end
-
-      while true do
-        local file = uv.fs_scandir_next(dir)
-        if file == nil then
-          return false
-        end
-
-        for _, pattern in ipairs(patterns) do
-          if file:match(pattern) == file then
-            return true, pattern
-          end
-        end
-      end
-
-      return false
-    end
+    local last_dir_cache = ""
+    local curr_dir_cache = {}
 
     local function get_parent(path)
       path = path:match("^(.*)/")
@@ -60,13 +41,89 @@ function M.find_pattern_root()
       return path
     end
 
-    while true do
-      local found, pattern = find(search_dir)
+    local function get_files(file_dir)
+      last_dir_cache = file_dir
+      curr_dir_cache = {}
 
-      if found then
-        return search_dir, pattern
-      elseif found == nil then
-        return nil
+      local dir = uv.fs_scandir(file_dir)
+      if dir == nil then
+        return false
+      end
+
+      while true do
+        local file = uv.fs_scandir_next(dir)
+        if file == nil then
+          return false
+        end
+
+        table.insert(curr_dir_cache, file)
+      end
+
+      return false
+    end
+
+    local function is(dir, identifier)
+      dir = dir:match(".*/(.*)")
+      return dir == identifier
+    end
+
+    local function sub(dir, identifier)
+      local path = get_parent(dir)
+      while true do
+        if is(path, identifier) then return true end
+        local current = path
+        path = get_parent(path)
+        if current == path then
+          return false
+        end
+      end
+    end
+
+    local function child(dir, identifier)
+      local path = get_parent(dir)
+      return is(path, identifier)
+    end
+
+    local function has(dir, identifier)
+      if last_dir_cache ~= dir then
+        get_files(dir)
+      end
+      for _, file in ipairs(curr_dir_cache) do
+        if file:match(identifier) then
+          return true
+        end
+      end
+      return false
+    end
+
+    local function match(dir, pattern)
+      local first_char = pattern:sub(1, 1)
+      if first_char == '=' then
+        return is(dir, pattern:sub(2))
+      elseif first_char == '^' then
+        return sub(dir, pattern:sub(2))
+      elseif first_char == '>' then
+        return child(dir, pattern:sub(2))
+      else
+        return has(dir, pattern)
+      end
+    end
+
+    -- breadth-first search
+    while true do
+      for _, pattern in ipairs(patterns) do
+        local exclude = false
+        if pattern:sub(1, 1) == "!" then
+          exclude = true
+          pattern = pattern:sub(2)
+        end
+        if match(search_dir, pattern) then
+          if exclude then
+            break
+          else
+            return search_dir, pattern
+          end
+        end
       end
 
       local parent = get_parent(search_dir)
