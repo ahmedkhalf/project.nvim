@@ -1,5 +1,5 @@
 local path = require("project_nvim.utils.path")
-local uv = require("luv")
+local uv = vim.loop
 local M = {}
 
 M.recent_projects = nil -- projects from previous neovim sessions
@@ -21,79 +21,66 @@ end
 -- end
 
 local function deserialize_history(history_data)
-  local work_ctx = uv.new_work(function(data)
-    ---@diagnostic disable-next-line: redefined-local
-    local uv = require("luv")
-
-    local function dir_exists(dir)
-      local stat = uv.fs_stat(dir)
-      if stat ~= nil and stat.type == "directory" then
-        return true
-      end
-      return false
+  local function dir_exists(dir)
+    local stat = uv.fs_stat(dir)
+    if stat ~= nil and stat.type == "directory" then
+      return true
     end
+    return false
+  end
 
-    local function delete_duplicates(tbl)
-      local cache_dict = {}
-      for _, v in ipairs(tbl) do
-        if cache_dict[v] == nil then
-          cache_dict[v] = 1
-        else
-          cache_dict[v] = cache_dict[v] + 1
-        end
-      end
-
-      local res = {}
-      for _, v in ipairs(tbl) do
-        if cache_dict[v] == 1 then
-          table.insert(res, v)
-        else
-          cache_dict[v] = cache_dict[v] - 1
-        end
-      end
-      return res
-    end
-
-    -- split data to table
-    local projects = {}
-    for s in data:gmatch("[^\r\n]+") do
-      if dir_exists(s) then
-        table.insert(projects, s)
+  local function delete_duplicates(tbl)
+    local cache_dict = {}
+    for _, v in ipairs(tbl) do
+      if cache_dict[v] == nil then
+        cache_dict[v] = 1
+      else
+        cache_dict[v] = cache_dict[v] + 1
       end
     end
 
-    projects = delete_duplicates(projects)
-
-    if #projects > 0 then
-      return unpack(projects)
+    local res = {}
+    for _, v in ipairs(tbl) do
+      if cache_dict[v] == 1 then
+        table.insert(res, v)
+      else
+        cache_dict[v] = cache_dict[v] - 1
+      end
     end
+    return res
+  end
 
-    -- Must return something otherwise segmentation fault: #561 luv
-    return nil
-  end, function(...)
-    local projects = {...}
-    M.recent_projects = projects
-  end)
+  -- split data to table
+  local projects = {}
+  for s in history_data:gmatch("[^\r\n]+") do
+    if dir_exists(s) then
+      table.insert(projects, s)
+    end
+  end
 
-  work_ctx:queue(history_data)
+  projects = delete_duplicates(projects)
+
+  if #projects > 0 then
+    return unpack(projects)
+  end
+
+  M.recent_projects = projects
 end
 
 function M.read_projects_from_history()
-  -- This function is asynchronous and multithreaded (deserialize_history)
-  -- therefore it should not tax the vim startup time
-  open_history("r", function(_, fd)
+  open_history("r", vim.schedule_wrap(function(_, fd)
     if fd ~= nil then
-      uv.fs_fstat(fd, function(_, stat)
+      uv.fs_fstat(fd, vim.schedule_wrap(function(_, stat)
         if stat ~= nil then
-          uv.fs_read(fd, stat.size, nil, function(_, data)
+          uv.fs_read(fd, stat.size, nil, vim.schedule_wrap(function(_, data)
             deserialize_history(data)
-            uv.fs_close(fd, function(_, _)
-            end)
-          end)
+            uv.fs_close(fd, vim.schedule_wrap(function(_, _)
+            end))
+          end))
         end
-      end)
+      end))
     end
-  end)
+  end))
 end
 
 local function sanitize_projects()

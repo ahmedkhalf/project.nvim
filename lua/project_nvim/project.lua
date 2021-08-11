@@ -1,5 +1,6 @@
 local config = require("project_nvim.config")
 local history = require("project_nvim.utils.history")
+local uv = vim.loop
 local M = {}
 
 -- Internal states
@@ -26,121 +27,109 @@ function M.find_lsp_root()
 end
 
 function M.find_pattern_root()
-  local work_ctx = vim.loop.new_work(function(search_dir, ...)
-    local uv = require("luv")
-    local patterns = {...}
+  local search_dir = vim.fn.expand('%:p:h', true)
+  local last_dir_cache = ""
+  local curr_dir_cache = {}
 
-    local last_dir_cache = ""
-    local curr_dir_cache = {}
+  local function get_parent(path)
+    path = path:match("^(.*)/")
+    if path == "" then
+        path = "/"
+    end
+    return path
+  end
 
-    local function get_parent(path)
-      path = path:match("^(.*)/")
-      if path == "" then
-          path = "/"
-      end
-      return path
+  local function get_files(file_dir)
+    last_dir_cache = file_dir
+    curr_dir_cache = {}
+
+    local dir = uv.fs_scandir(file_dir)
+    if dir == nil then
+      return
     end
 
-    local function get_files(file_dir)
-      last_dir_cache = file_dir
-      curr_dir_cache = {}
-
-      local dir = uv.fs_scandir(file_dir)
-      if dir == nil then
+    while true do
+      local file = uv.fs_scandir_next(dir)
+      if file == nil then
         return
       end
 
-      while true do
-        local file = uv.fs_scandir_next(dir)
-        if file == nil then
-          return
-        end
+      table.insert(curr_dir_cache, file)
+    end
+  end
 
-        table.insert(curr_dir_cache, file)
+  local function is(dir, identifier)
+    dir = dir:match(".*/(.*)")
+    return dir == identifier
+  end
+
+  local function sub(dir, identifier)
+    local path = get_parent(dir)
+    while true do
+      if is(path, identifier) then return true end
+      local current = path
+      path = get_parent(path)
+      if current == path then
+        return false
       end
     end
+  end
 
-    local function is(dir, identifier)
-      dir = dir:match(".*/(.*)")
-      return dir == identifier
+  local function child(dir, identifier)
+    local path = get_parent(dir)
+    return is(path, identifier)
+  end
+
+  local function has(dir, identifier)
+    if last_dir_cache ~= dir then
+      get_files(dir)
     end
-
-    local function sub(dir, identifier)
-      local path = get_parent(dir)
-      while true do
-        if is(path, identifier) then return true end
-        local current = path
-        path = get_parent(path)
-        if current == path then
-          return false
-        end
+    for _, file in ipairs(curr_dir_cache) do
+      if file:match(identifier) == file then
+        return true
       end
     end
+    return false
+  end
 
-    local function child(dir, identifier)
-      local path = get_parent(dir)
-      return is(path, identifier)
+  local function match(dir, pattern)
+    local first_char = pattern:sub(1, 1)
+    if first_char == '=' then
+      return is(dir, pattern:sub(2))
+    elseif first_char == '^' then
+      return sub(dir, pattern:sub(2))
+    elseif first_char == '>' then
+      return child(dir, pattern:sub(2))
+    else
+      return has(dir, pattern)
     end
+  end
 
-    local function has(dir, identifier)
-      if last_dir_cache ~= dir then
-        get_files(dir)
+  -- breadth-first search
+  while true do
+    for _, pattern in ipairs(config.options.patterns) do
+      local exclude = false
+      if pattern:sub(1, 1) == "!" then
+        exclude = true
+        pattern = pattern:sub(2)
       end
-      for _, file in ipairs(curr_dir_cache) do
-        if file:match(identifier) == file then
+      if match(search_dir, pattern) then
+        if exclude then
+          break
+        else
+          M.set_pwd(search_dir, "pattern " .. pattern)
           return true
         end
       end
+    end
+
+    local parent = get_parent(search_dir)
+    if parent == search_dir then
       return false
     end
 
-    local function match(dir, pattern)
-      local first_char = pattern:sub(1, 1)
-      if first_char == '=' then
-        return is(dir, pattern:sub(2))
-      elseif first_char == '^' then
-        return sub(dir, pattern:sub(2))
-      elseif first_char == '>' then
-        return child(dir, pattern:sub(2))
-      else
-        return has(dir, pattern)
-      end
-    end
-
-    -- breadth-first search
-    while true do
-      for _, pattern in ipairs(patterns) do
-        local exclude = false
-        if pattern:sub(1, 1) == "!" then
-          exclude = true
-          pattern = pattern:sub(2)
-        end
-        if match(search_dir, pattern) then
-          if exclude then
-            break
-          else
-            return search_dir, pattern
-          end
-        end
-      end
-
-      local parent = get_parent(search_dir)
-      if parent == search_dir then
-        return nil
-      end
-
-      search_dir = parent
-    end
-
-    return 1 -- must return something otherwise Segmentation fault: #561 luv
-  end, vim.schedule_wrap(function(path, pattern)
-    if type(path) == "string" then
-      M.set_pwd(path, "pattern " .. pattern)
-    end
-  end))
-
-  local file_dir = vim.fn.expand('%:p:h', true)
-  work_ctx:queue(file_dir, unpack(config.options.patterns))
+    search_dir = parent
+  end
 end
 
 ---@diagnostic disable-next-line: unused-local
@@ -242,7 +231,7 @@ end
 function M.init()
   vim.cmd [[
     autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
-    autocmd VimLeave * lua require("project_nvim.utils.history").write_projects_to_history()
+    autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
 
   for _, detection_method in ipairs(config.options.detection_methods) do
