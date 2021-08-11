@@ -1,6 +1,6 @@
 local path = require("project_nvim.utils.path")
 local uv = vim.loop
-M = {}
+local M = {}
 
 M.recent_projects = nil -- projects from previous neovim sessions
 M.session_projects = {} -- projects from current neovim session
