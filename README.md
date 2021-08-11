@@ -1,4 +1,4 @@
-# project.nvim
+# 🗃️ project.nvim
 
 **project.nvim** is an all in one neovim plugin written in lua that provides
 superior project management.
@@ -10,11 +10,11 @@ superior project management.
 ## ✨ Features
 
 - Automagically cd to project directory using nvim lsp
-  - Dependency free, does not rely on `lspconfig`
+  - Dependency free, does not rely on lspconfig
 - If no lsp then uses pattern matching to cd to root directory
   - Unlike other plugins, this plugin uses 100% **multithreaded** pattern
     matching, meaning it will not slow down the nvim ui, even on large folders.
-- Telescope integration: `Telescope projects`
+- Telescope integration `:Telescope projects`
   - Access your recently opened projects from telescope!
   - Multithreaded file io so it will not slow down vim when reading and sorting
     the history file on startup.
