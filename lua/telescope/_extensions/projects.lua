@@ -8,9 +8,18 @@ local finders = require "telescope.finders"
 local pickers = require "telescope.pickers"
 local config = require("telescope.config").values
 local actions = require "telescope.actions"
+local builtin = require("telescope.builtin")
 local entry_display = require "telescope.pickers.entry_display"
 
 local history = require("project_nvim.utils.history")
+local project = require("project_nvim.project")
+
+local function find_project_files(prompt_bufnr, hidden_files)
+  local project_path = actions.get_selected_entry(prompt_bufnr).value
+  actions._close(prompt_bufnr, true)
+  local cd_successful = project.set_pwd(project_path, "telescope")
+  if cd_successful then builtin.find_files({cwd = project_path, hidden = hidden_files}) end
+end
 
 ---Main entrypoint for Telescope.
 ---@param opts table
@@ -55,10 +64,13 @@ local function projects(opts)
     },
     previewer = false,
     sorter = config.generic_sorter(opts),
-    -- attach_mappings = function()
-    --   actions.select_default:replace(smart_url_opener(state))
-    --   return true
-    -- end,
+    attach_mappings = function(prompt_bufnr)
+      local on_project_selected = function()
+        find_project_files(prompt_bufnr, false)
+      end
+      actions.select_default:replace(on_project_selected)
+      return true
+    end,
   }):find()
 end
 
