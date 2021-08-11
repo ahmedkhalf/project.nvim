@@ -67,6 +67,11 @@ use {
 }
 ```
 
+To enable telescope integration:
+```lua
+require('telescope').load_extension('projects')
+```
+
 ## 🤝 Contributing
 
 - All pull requests are welcome.
