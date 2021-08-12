@@ -237,7 +237,7 @@ function M.init()
     autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
 
-  if vim.tbl_contains(config.options.detection_methods, "lua") then
+  if vim.tbl_contains(config.options.detection_methods, "lsp") then
     M.attach_to_lsp()
   end
 
