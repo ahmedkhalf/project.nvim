@@ -1,5 +1,6 @@
 local config = require("project_nvim.config")
 local history = require("project_nvim.utils.history")
+local glob = require("project_nvim.utils.globtopattern")
 local uv = vim.loop
 local M = {}
 
@@ -84,8 +85,9 @@ function M.find_pattern_root()
     if last_dir_cache ~= dir then
       get_files(dir)
     end
+    local pattern = glob.globtopattern(identifier)
     for _, file in ipairs(curr_dir_cache) do
-      if file:match(identifier) == file then
+      if file:match(pattern) ~= nil then
         return true
       end
     end
