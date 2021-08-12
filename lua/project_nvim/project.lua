@@ -224,6 +224,7 @@ function M.on_buf_enter()
       end
     elseif detection_method == "pattern" then
       M.find_pattern_root()
+      return
     end
   end
 end
