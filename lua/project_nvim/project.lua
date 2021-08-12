@@ -234,10 +234,8 @@ function M.init()
     autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
 
-  for _, detection_method in ipairs(config.options.detection_methods) do
-    if detection_method == "lsp" then
-      M.attach_to_lsp()
-    end
+  if vim.tbl_contains(config.options.detection_methods, "lua") then
+    M.attach_to_lsp()
   end
 
   history.read_projects_from_history()
