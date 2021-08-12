@@ -16,40 +16,36 @@ local function open_history(mode, callback)
   end
 end
 
--- local function dir_exists(path)
--- here we can use uv.fs_stat
--- end
+local function dir_exists(dir)
+  local stat = uv.fs_stat(dir)
+  if stat ~= nil and stat.type == "directory" then
+    return true
+  end
+  return false
+end
+
+local function delete_duplicates(tbl)
+  local cache_dict = {}
+  for _, v in ipairs(tbl) do
+    if cache_dict[v] == nil then
+      cache_dict[v] = 1
+    else
+      cache_dict[v] = cache_dict[v] + 1
+    end
+  end
+
+  local res = {}
+  for _, v in ipairs(tbl) do
+    if cache_dict[v] == 1 then
+      table.insert(res, v)
+    else
+      cache_dict[v] = cache_dict[v] - 1
+    end
+  end
+  return res
+end
 
 local function deserialize_history(history_data)
-  local function dir_exists(dir)
-    local stat = uv.fs_stat(dir)
-    if stat ~= nil and stat.type == "directory" then
-      return true
-    end
-    return false
-  end
-
-  local function delete_duplicates(tbl)
-    local cache_dict = {}
-    for _, v in ipairs(tbl) do
-      if cache_dict[v] == nil then
-        cache_dict[v] = 1
-      else
-        cache_dict[v] = cache_dict[v] + 1
-      end
-    end
-
-    local res = {}
-    for _, v in ipairs(tbl) do
-      if cache_dict[v] == 1 then
-        table.insert(res, v)
-      else
-        cache_dict[v] = cache_dict[v] - 1
-      end
-    end
-    return res
-  end
-
   -- split data to table
   local projects = {}
   for s in history_data:gmatch("[^\r\n]+") do
@@ -60,57 +56,44 @@ local function deserialize_history(history_data)
 
   projects = delete_duplicates(projects)
 
-  if #projects > 0 then
-    return unpack(projects)
-  end
-
   M.recent_projects = projects
 end
 
 function M.read_projects_from_history()
-  open_history("r", vim.schedule_wrap(function(_, fd)
+  open_history("r", function(_, fd)
     if fd ~= nil then
-      uv.fs_fstat(fd, vim.schedule_wrap(function(_, stat)
+      uv.fs_fstat(fd, function(_, stat)
         if stat ~= nil then
-          uv.fs_read(fd, stat.size, nil, vim.schedule_wrap(function(_, data)
+          uv.fs_read(fd, stat.size, nil, function(_, data)
+            uv.fs_close(fd, function(_, _)
+            end)
             deserialize_history(data)
-            uv.fs_close(fd, vim.schedule_wrap(function(_, _)
-            end))
-          end))
+          end)
         end
-      end))
+      end)
     end
-  end))
+  end)
 end
 
 local function sanitize_projects()
-    M.recent_projects = M.recent_projects or {}
+  local tbl = {}
+  if M.recent_projects ~= nil then
+    vim.list_extend(tbl, M.recent_projects)
+    vim.list_extend(tbl, M.session_projects)
+  else
+    tbl = M.session_projects
+  end
 
-    -- Merge recent_projects and session_projects in tbl
-    local tbl = {}
-    local n = 0
-    for _, v in ipairs(M.recent_projects) do n=n+1; tbl[n]=v end
-    for _, v in ipairs(M.session_projects) do n=n+1; tbl[n]=v end
+  tbl = delete_duplicates(tbl)
 
-    -- Remove duplicates from tbl and output clean res
-    local cache_dict = {}
-    for _, v in ipairs(tbl) do
-      if cache_dict[v] == nil then
-        cache_dict[v] = 1
-      else
-        cache_dict[v] = cache_dict[v] + 1
-      end
+  local real_tbl = {}
+  for _, dir in ipairs(tbl) do
+    if dir_exists(dir) then
+      table.insert(real_tbl, dir)
     end
+  end
 
-    local res = {}
-    for _, v in ipairs(tbl) do
-      if cache_dict[v] == 1 then
-        table.insert(res, v)
-      else
-        cache_dict[v] = cache_dict[v] - 1
-      end
-    end
-    return res
+  return real_tbl
 end
 
 function M.get_recent_projects()
@@ -126,12 +109,10 @@ function M.write_projects_to_history()
     local res = sanitize_projects()
 
     -- Trim table to last 100 entries
+    local len_res = #res
     local tbl_out = {}
     if #res > 100 then
-      local start_at = #res - 100
-      for i = start_at+1, #res, 1 do
-        table.insert(tbl_out, res[i])
-      end
+      tbl_out = vim.list_slice(res, len_res - 100, len_res)
     else
       tbl_out = res
     end
