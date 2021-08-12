@@ -20,7 +20,9 @@ function M.find_lsp_root()
   for _, client in pairs(clients) do
     local filetypes = client.config.filetypes
     if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
-      return client.config.root_dir
+      if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
+        return client.config.root_dir
+      end
     end
   end
 
