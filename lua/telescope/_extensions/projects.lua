@@ -1,3 +1,6 @@
+-- Inspiration from:
+-- https://github.com/nvim-telescope/telescope-project.nvim
+
 local has_telescope, telescope = pcall(require, "telescope")
 
 if not has_telescope then
@@ -14,11 +17,35 @@ local entry_display = require "telescope.pickers.entry_display"
 local history = require("project_nvim.utils.history")
 local project = require("project_nvim.project")
 
-local function find_project_files(prompt_bufnr, hidden_files)
+----------
+-- Actions
+----------
+
+local function change_working_directory(prompt_bufnr)
   local project_path = actions.get_selected_entry(prompt_bufnr).value
-  actions._close(prompt_bufnr, true)
+  actions.close(prompt_bufnr)
   local cd_successful = project.set_pwd(project_path, "telescope")
+  return project_path, cd_successful
+end
+
+local function find_project_files(prompt_bufnr, hidden_files)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr)
   if cd_successful then builtin.find_files({cwd = project_path, hidden = hidden_files}) end
+end
+
+local function browse_project_files(prompt_bufnr)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr)
+  if cd_successful then builtin.file_browser({cwd = project_path}) end
+end
+
+local function search_in_project_files(prompt_bufnr)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr)
+  if cd_successful then builtin.live_grep({cwd = project_path}) end
+end
+
+local function recent_project_files(prompt_bufnr)
+  local _, cd_successful = change_working_directory(prompt_bufnr)
+  if cd_successful then builtin.oldfiles({cwd_only = true}) end
 end
 
 ---Main entrypoint for Telescope.
@@ -64,7 +91,19 @@ local function projects(opts)
     },
     previewer = false,
     sorter = config.generic_sorter(opts),
-    attach_mappings = function(prompt_bufnr)
+    attach_mappings = function(prompt_bufnr, map)
+      map('n', 'f', find_project_files)
+      map('n', 'b', browse_project_files)
+      map('n', 's', search_in_project_files)
+      map('n', 'r', recent_project_files)
+      map('n', 'w', change_working_directory)
+
+      map('i', '<c-f>', find_project_files)
+      map('i', '<c-b>', browse_project_files)
+      map('i', '<c-s>', search_in_project_files)
+      map('i', '<c-r>', recent_project_files)
+      map('i', '<c-w>', change_working_directory)
+
       local on_project_selected = function()
         find_project_files(prompt_bufnr, false)
       end
