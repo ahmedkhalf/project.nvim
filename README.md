@@ -85,10 +85,56 @@ use {
 }
 ```
 
+Even if you are pleased with the defaults, please note that `setup {}` must be
+called for the plugin to start.
+
+### Telescope Integration
+
 To enable telescope integration:
 ```lua
 require('telescope').load_extension('projects')
 ```
+
+### Pattern Matching
+
+**project.nvim**'s pattern engine uses the expressions as vim-rooter, but for
+your convenience, I will copy paste them here:
+
+To specify the root is a certain directory, prefix it with `=`.
+
+```lua
+detection_methods = { "=src" }
+```
+
+To specify the root has a certain directory or file (which may be a glob), just
+give the name:
+
+```lua
+detection_methods = { ".git", "Makefile", "*.sln", "build/env.sh" }
+```
+
+To specify the root has a certain directory as an ancestor (useful for
+excluding directories), prefix it with `^`:
+
+```lua
+detection_methods = { "^fixtures" }
+```
+
+To specify the root has a certain directory as its direct ancestor / parent
+(useful when you put working projects in a common directory), prefix it with
+`>`:
+
+```lua
+detection_methods = { ">Latex" }
+```
+
+To exclude a pattern, prefix it with `!`.
+
+```lua
+detection_methods = { "!.git/worktrees", "!=extras", "!^fixtures", "!build/env.sh" }
+```
+
+List your exclusions before the patterns you do want.
 
 ## 🤝 Contributing
 
