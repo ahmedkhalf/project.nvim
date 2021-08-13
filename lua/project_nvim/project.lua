@@ -37,7 +37,7 @@ function M.find_pattern_root()
   local function get_parent(path)
     path = path:match("^(.*)/")
     if path == "" then
-        path = "/"
+      path = "/"
     end
     return path
   end
@@ -121,15 +121,14 @@ function M.find_pattern_root()
         if exclude then
           break
         else
-          M.set_pwd(search_dir, "pattern " .. pattern)
-          return true
+          return search_dir, "pattern " .. pattern
         end
       end
     end
 
     local parent = get_parent(search_dir)
     if parent == search_dir then
-      return false
+      return nil
     end
 
     search_dir = parent
@@ -187,6 +186,23 @@ function M.set_pwd(dir, method)
   return false
 end
 
+function M.get_project_root()
+  -- returns project root, as well as method
+  for _, detection_method in ipairs(config.options.detection_methods) do
+    if detection_method == "lsp" then
+      local root = M.find_lsp_root()
+      if root ~= nil then
+        return root, "lsp"
+      end
+    elseif detection_method == "pattern" then
+      local root, method = M.find_pattern_root()
+      if root ~= nil then
+        return root, method
+      end
+    end
+  end
+end
+
 function M.is_file()
   local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
   local buf_name = vim.api.nvim_buf_get_name(0)
@@ -219,18 +235,8 @@ function M.on_buf_enter()
     return
   end
 
-  for _, detection_method in ipairs(config.options.detection_methods) do
-    if detection_method == "lsp" then
-      local root = M.find_lsp_root()
-      if root ~= nil then
-        M.set_pwd(root, "lsp")
-        return -- avoid any further calculations if lsp found
-      end
-    elseif detection_method == "pattern" then
-      M.find_pattern_root()
-      return
-    end
-  end
+  local root, method = M.get_project_root()
+  M.set_pwd(root, method)
 end
 
 function M.init()
