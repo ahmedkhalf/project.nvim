@@ -240,14 +240,20 @@ function M.on_buf_enter()
 end
 
 function M.init()
+  if not config.options.manual_mode then
+    vim.cmd [[
+      autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
+    ]]
+
+    if vim.tbl_contains(config.options.detection_methods, "lsp") then
+      M.attach_to_lsp()
+    end
+  end
+
   vim.cmd [[
-    autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
+    command ProjectRoot lua require("project_nvim.project").on_buf_enter()
     autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
-
-  if vim.tbl_contains(config.options.detection_methods, "lsp") then
-    M.attach_to_lsp()
-  end
 
   history.read_projects_from_history()
 end
