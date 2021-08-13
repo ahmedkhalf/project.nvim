@@ -97,8 +97,8 @@ require('telescope').load_extension('projects')
 
 ### Pattern Matching
 
-**project.nvim**'s pattern engine uses the expressions as vim-rooter, but for
-your convenience, I will copy paste them here:
+**project.nvim**'s pattern engine uses the same expressions as vim-rooter, but
+for your convenience, I will copy paste them here:
 
 To specify the root is a certain directory, prefix it with `=`.
 
