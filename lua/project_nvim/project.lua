@@ -226,14 +226,27 @@ function M.is_file()
   return true
 end
 
-function M.on_buf_enter()
-  if vim.v.vim_did_enter == 0 then
-    return
-  end
+function M.is_launch_screen()
+    local buf_ft = vim.bo.ft
+    local filetypes = {"startify"}
+      for _, filetype in ipairs(filetypes) do
+        if buf_ft == filetype then
+            return true
+        end
+    end
+    return true
+end
 
-  if not M.is_file() then
-    return
-  end
+function M.on_buf_enter()
+    if vim.v.vim_did_enter == 0 then
+        return
+    end
+
+    if not M.is_file() then
+        if not M.is_launch_screen() then
+            return
+        end
+    end
 
   local root, method = M.get_project_root()
   M.set_pwd(root, method)
