@@ -251,7 +251,7 @@ function M.init()
   end
 
   vim.cmd [[
-    command ProjectRoot lua require("project_nvim.project").on_buf_enter()
+    command! ProjectRoot lua require("project_nvim.project").on_buf_enter()
     autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
   ]]
 
