@@ -64,7 +64,7 @@ function M.read_projects_from_history()
     if fd ~= nil then
       uv.fs_fstat(fd, function(_, stat)
         if stat ~= nil then
-          uv.fs_read(fd, stat.size, nil, function(_, data)
+          uv.fs_read(fd, stat.size, -1, function(_, data)
             uv.fs_close(fd, function(_, _)
             end)
             deserialize_history(data)
