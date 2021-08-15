@@ -199,7 +199,6 @@ end
 
 function M.is_file()
   local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
-  local buf_name = vim.api.nvim_buf_get_name(0)
 
   local whitelisted_buf_type = { "", "acwrite" }
   local is_in_whitelist = false
@@ -210,10 +209,6 @@ function M.is_file()
     end
   end
   if not is_in_whitelist then
-    return false
-  end
-
-  if buf_name == "" then
     return false
   end
 
