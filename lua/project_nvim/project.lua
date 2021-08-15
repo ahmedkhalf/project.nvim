@@ -127,7 +127,7 @@ function M.find_pattern_root()
     end
 
     local parent = get_parent(search_dir)
-    if parent == search_dir then
+    if parent == search_dir or parent == nil then
       return nil
     end
 
