@@ -231,10 +231,6 @@ function M.on_buf_enter()
     return
   end
 
-  if not M.is_file() then
-    return
-  end
-
   local root, method = M.get_project_root()
   M.set_pwd(root, method)
 end
