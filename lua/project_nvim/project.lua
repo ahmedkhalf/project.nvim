@@ -170,12 +170,6 @@ function M.set_pwd(dir, method)
     if vim.fn.getcwd() ~= dir then
       vim.api.nvim_set_current_dir(dir)
 
-      -- NvimTree integration
-      local status, nvim_tree = pcall(require, "nvim-tree.lib")
-      if status then
-        pcall(nvim_tree.change_dir, dir)
-      end
-
       if config.options.silent_chdir == false then
         print("Set CWD to", dir, "using", method)
       end
