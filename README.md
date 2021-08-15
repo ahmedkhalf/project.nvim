@@ -18,7 +18,18 @@ superior project management.
   - Access your recently opened projects from telescope!
   - Asynchronous file io so it will not slow down vim when reading the history
     file on startup.
-- Nvim-tree.lua support/integration
+- ~~Nvim-tree.lua support/integration~~
+  - Please add the following to your config instead:
+    ```
+    " Vim Script
+    let g:nvim_tree_update_cwd = 1
+    let g:nvim_tree_respect_buf_cwd = 1
+    ```
+    ```
+    -- lua
+    vim.g.nvim_tree_update_cwd = 1
+    vim.g.nvim_tree_respect_buf_cwd = 1
+    ```
 
 ## 📦 Installation
 
