@@ -124,7 +124,7 @@ function M.write_projects_to_history()
     end
 
     -- Write string out to file and close
-    uv.fs_write(file, out)
+    uv.fs_write(file, out, -1)
     uv.fs_close(file)
   end
 end
