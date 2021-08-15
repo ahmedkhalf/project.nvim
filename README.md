@@ -20,12 +20,12 @@ superior project management.
     file on startup.
 - ~~Nvim-tree.lua support/integration~~
   - Please add the following to your config instead:
-    ```
+    ```vim
     " Vim Script
     let g:nvim_tree_update_cwd = 1
     let g:nvim_tree_respect_buf_cwd = 1
     ```
-    ```
+    ```lua
     -- lua
     vim.g.nvim_tree_update_cwd = 1
     vim.g.nvim_tree_respect_buf_cwd = 1
