@@ -23,6 +23,10 @@ local defaults = {
   -- When set to false, you will get a message when project.nvim changes your
   -- directory.
   silent_chdir = true,
+
+  -- Path where project.nvim will store the project history for use in
+  -- telescope
+  datapath = vim.fn.stdpath("data"),
 }
 
 ---@type ProjectOptions
@@ -30,6 +34,7 @@ M.options = {}
 
 M.setup = function (options)
   M.options = vim.tbl_deep_extend("force", defaults, options or {})
+  require("project_nvim.utils.path").init()
   require("project_nvim.project").init()
 end
 
