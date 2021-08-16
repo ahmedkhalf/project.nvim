@@ -22,7 +22,12 @@ local project = require("project_nvim.project")
 ----------
 
 local function change_working_directory(prompt_bufnr, prompt)
-  local project_path = actions.get_selected_entry(prompt_bufnr).value
+  local selected_entry = actions.get_selected_entry(prompt_bufnr)
+  if selected_entry == nil then
+    actions.close(prompt_bufnr)
+    return
+  end
+  local project_path = selected_entry.value
   if prompt == true then
     actions._close(prompt_bufnr, true)
   else
