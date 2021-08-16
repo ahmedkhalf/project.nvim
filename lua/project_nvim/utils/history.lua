@@ -4,6 +4,7 @@ local M = {}
 
 M.recent_projects = nil -- projects from previous neovim sessions
 M.session_projects = {} -- projects from current neovim session
+M.has_watch_setup = false
 
 local function open_history(mode, callback)
   if callback ~= nil then -- async
@@ -59,8 +60,25 @@ local function deserialize_history(history_data)
   M.recent_projects = projects
 end
 
+local function setup_watch()
+  -- Only runs once
+  if M.has_watch_setup == false then
+    M.has_watch_setup = true
+    local event = uv.new_fs_event()
+    if event == nil then return end
+    event:start(path.projectpath, {}, function(err, _, events)
+      if err ~= nil then return end
+      if events["change"] then
+        M.recent_projects = nil
+        M.read_projects_from_history()
+      end
+    end)
+  end
+end
+
 function M.read_projects_from_history()
   open_history("r", function(_, fd)
+    setup_watch()
     if fd ~= nil then
       uv.fs_fstat(fd, function(_, stat)
         if stat ~= nil then
