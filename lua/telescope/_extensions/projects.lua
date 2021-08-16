@@ -21,30 +21,34 @@ local project = require("project_nvim.project")
 -- Actions
 ----------
 
-local function change_working_directory(prompt_bufnr)
+local function change_working_directory(prompt_bufnr, prompt)
   local project_path = actions.get_selected_entry(prompt_bufnr).value
-  actions._close(prompt_bufnr, true)
+  if prompt == true then
+    actions._close(prompt_bufnr, true)
+  else
+    actions.close(prompt_bufnr)
+  end
   local cd_successful = project.set_pwd(project_path, "telescope")
   return project_path, cd_successful
 end
 
 local function find_project_files(prompt_bufnr, hidden_files)
-  local project_path, cd_successful = change_working_directory(prompt_bufnr)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   if cd_successful then builtin.find_files({cwd = project_path, hidden = hidden_files}) end
 end
 
 local function browse_project_files(prompt_bufnr)
-  local project_path, cd_successful = change_working_directory(prompt_bufnr)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   if cd_successful then builtin.file_browser({cwd = project_path}) end
 end
 
 local function search_in_project_files(prompt_bufnr)
-  local project_path, cd_successful = change_working_directory(prompt_bufnr)
+  local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   if cd_successful then builtin.live_grep({cwd = project_path}) end
 end
 
 local function recent_project_files(prompt_bufnr)
-  local _, cd_successful = change_working_directory(prompt_bufnr)
+  local _, cd_successful = change_working_directory(prompt_bufnr, true)
   if cd_successful then builtin.oldfiles({cwd_only = true}) end
 end
 
