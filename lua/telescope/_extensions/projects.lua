@@ -23,7 +23,7 @@ local project = require("project_nvim.project")
 
 local function change_working_directory(prompt_bufnr)
   local project_path = actions.get_selected_entry(prompt_bufnr).value
-  actions.close(prompt_bufnr)
+  actions._close(prompt_bufnr, true)
   local cd_successful = project.set_pwd(project_path, "telescope")
   return project_path, cd_successful
 end
