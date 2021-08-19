@@ -9,13 +9,14 @@ end
 
 local finders = require "telescope.finders"
 local pickers = require "telescope.pickers"
-local config = require("telescope.config").values
+local telescope_config = require("telescope.config").values
 local actions = require "telescope.actions"
 local builtin = require("telescope.builtin")
 local entry_display = require "telescope.pickers.entry_display"
 
 local history = require("project_nvim.utils.history")
 local project = require("project_nvim.project")
+local config = require("project_nvim.config")
 
 ----------
 -- Actions
@@ -37,24 +38,28 @@ local function change_working_directory(prompt_bufnr, prompt)
   return project_path, cd_successful
 end
 
-local function find_project_files(prompt_bufnr, hidden_files)
+local function find_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
-  if cd_successful then builtin.find_files({cwd = project_path, hidden = hidden_files}) end
+  local opt = { cwd = project_path, hidden = config.options.show_hidden }
+  if cd_successful then builtin.find_files(opt) end
 end
 
 local function browse_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
-  if cd_successful then builtin.file_browser({cwd = project_path}) end
+  local opt = { cwd = project_path, hidden = config.options.show_hidden }
+  if cd_successful then builtin.file_browser(opt) end
 end
 
 local function search_in_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
-  if cd_successful then builtin.live_grep({cwd = project_path}) end
+  local opt = { cwd = project_path, hidden = config.options.show_hidden }
+  if cd_successful then builtin.live_grep(opt) end
 end
 
 local function recent_project_files(prompt_bufnr)
   local _, cd_successful = change_working_directory(prompt_bufnr, true)
-  if cd_successful then builtin.oldfiles({cwd_only = true}) end
+  local opt = { cwd_only = true, hidden = config.options.show_hidden }
+  if cd_successful then builtin.oldfiles(opt) end
 end
 
 ---Main entrypoint for Telescope.
@@ -99,7 +104,7 @@ local function projects(opts)
       end,
     },
     previewer = false,
-    sorter = config.generic_sorter(opts),
+    sorter = telescope_config.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
       map('n', 'f', find_project_files)
       map('n', 'b', browse_project_files)
@@ -114,7 +119,7 @@ local function projects(opts)
       map('i', '<c-w>', change_working_directory)
 
       local on_project_selected = function()
-        find_project_files(prompt_bufnr, false)
+        find_project_files(prompt_bufnr)
       end
       actions.select_default:replace(on_project_selected)
       return true
