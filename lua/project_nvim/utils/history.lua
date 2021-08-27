@@ -124,14 +124,18 @@ end
 function M.write_projects_to_history()
   -- Unlike read projects, write projects is synchronous
   -- because it runs when vim ends
-  local file = open_history("w")
+  local mode = "w"
+  if M.recent_projects == nil then
+    mode = "a"
+  end
+  local file = open_history(mode)
 
   if file ~= nil then
     local res = sanitize_projects()
 
     -- Trim table to last 100 entries
     local len_res = #res
-    local tbl_out = {}
+    local tbl_out
     if #res > 100 then
       tbl_out = vim.list_slice(res, len_res - 100, len_res)
     else
