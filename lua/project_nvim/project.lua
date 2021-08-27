@@ -11,7 +11,7 @@ M.last_project = nil
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, 'filetype')
+  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
   local clients = vim.lsp.buf_get_clients()
   if next(clients) == nil then
     return nil
@@ -30,7 +30,7 @@ function M.find_lsp_root()
 end
 
 function M.find_pattern_root()
-  local search_dir = vim.fn.expand('%:p:h', true)
+  local search_dir = vim.fn.expand("%:p:h", true)
   local last_dir_cache = ""
   local curr_dir_cache = {}
 
@@ -69,7 +69,9 @@ function M.find_pattern_root()
   local function sub(dir, identifier)
     local path = get_parent(dir)
     while true do
-      if is(path, identifier) then return true end
+      if is(path, identifier) then
+        return true
+      end
       local current = path
       path = get_parent(path)
       if current == path then
@@ -98,11 +100,11 @@ function M.find_pattern_root()
 
   local function match(dir, pattern)
     local first_char = pattern:sub(1, 1)
-    if first_char == '=' then
+    if first_char == "=" then
       return is(dir, pattern:sub(2))
-    elseif first_char == '^' then
+    elseif first_char == "^" then
       return sub(dir, pattern:sub(2))
-    elseif first_char == '>' then
+    elseif first_char == ">" then
       return child(dir, pattern:sub(2))
     else
       return has(dir, pattern)
@@ -230,19 +232,19 @@ end
 
 function M.init()
   if not config.options.manual_mode then
-    vim.cmd [[
+    vim.cmd([[
       autocmd VimEnter,BufEnter * lua require("project_nvim.project").on_buf_enter()
-    ]]
+    ]])
 
     if vim.tbl_contains(config.options.detection_methods, "lsp") then
       M.attach_to_lsp()
     end
   end
 
-  vim.cmd [[
+  vim.cmd([[
     command! ProjectRoot lua require("project_nvim.project").on_buf_enter()
     autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()
-  ]]
+  ]])
 
   history.read_projects_from_history()
 end

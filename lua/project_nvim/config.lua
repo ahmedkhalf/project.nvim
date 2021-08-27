@@ -35,7 +35,7 @@ local defaults = {
 ---@type ProjectOptions
 M.options = {}
 
-M.setup = function (options)
+M.setup = function(options)
   M.options = vim.tbl_deep_extend("force", defaults, options or {})
   require("project_nvim.utils.path").init()
   require("project_nvim.project").init()

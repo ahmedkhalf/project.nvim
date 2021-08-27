@@ -7,12 +7,12 @@ if not has_telescope then
   return
 end
 
-local finders = require "telescope.finders"
-local pickers = require "telescope.pickers"
+local finders = require("telescope.finders")
+local pickers = require("telescope.pickers")
 local telescope_config = require("telescope.config").values
-local actions = require "telescope.actions"
+local actions = require("telescope.actions")
 local builtin = require("telescope.builtin")
-local entry_display = require "telescope.pickers.entry_display"
+local entry_display = require("telescope.pickers.entry_display")
 
 local history = require("project_nvim.utils.history")
 local project = require("project_nvim.project")
@@ -41,25 +41,33 @@ end
 local function find_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   local opt = { cwd = project_path, hidden = config.options.show_hidden }
-  if cd_successful then builtin.find_files(opt) end
+  if cd_successful then
+    builtin.find_files(opt)
+  end
 end
 
 local function browse_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   local opt = { cwd = project_path, hidden = config.options.show_hidden }
-  if cd_successful then builtin.file_browser(opt) end
+  if cd_successful then
+    builtin.file_browser(opt)
+  end
 end
 
 local function search_in_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
   local opt = { cwd = project_path, hidden = config.options.show_hidden }
-  if cd_successful then builtin.live_grep(opt) end
+  if cd_successful then
+    builtin.live_grep(opt)
+  end
 end
 
 local function recent_project_files(prompt_bufnr)
   local _, cd_successful = change_working_directory(prompt_bufnr, true)
   local opt = { cwd_only = true, hidden = config.options.show_hidden }
-  if cd_successful then builtin.oldfiles(opt) end
+  if cd_successful then
+    builtin.oldfiles(opt)
+  end
 end
 
 ---Main entrypoint for Telescope.
@@ -67,31 +75,31 @@ end
 local function projects(opts)
   opts = opts or {}
 
-  local displayer = entry_display.create {
+  local displayer = entry_display.create({
     separator = " ",
     items = {
       { width = 30 },
       { remaining = true },
     },
-  }
+  })
 
   local function make_display(entry)
-    return displayer {
+    return displayer({
       entry.name,
       { entry.value, "Comment" },
-    }
+    })
   end
 
   local results = history.get_recent_projects()
 
   -- Reverse results
-  for i=1, math.floor(#results / 2) do
+  for i = 1, math.floor(#results / 2) do
     results[i], results[#results - i + 1] = results[#results - i + 1], results[i]
   end
 
   pickers.new(opts, {
     prompt_title = "Recent Projects",
-    finder = finders.new_table {
+    finder = finders.new_table({
       results = results,
       entry_maker = function(entry)
         local name = vim.fn.fnamemodify(entry, ":t")
@@ -102,21 +110,21 @@ local function projects(opts)
           ordinal = name .. " " .. entry,
         }
       end,
-    },
+    }),
     previewer = false,
     sorter = telescope_config.generic_sorter(opts),
     attach_mappings = function(prompt_bufnr, map)
-      map('n', 'f', find_project_files)
-      map('n', 'b', browse_project_files)
-      map('n', 's', search_in_project_files)
-      map('n', 'r', recent_project_files)
-      map('n', 'w', change_working_directory)
+      map("n", "f", find_project_files)
+      map("n", "b", browse_project_files)
+      map("n", "s", search_in_project_files)
+      map("n", "r", recent_project_files)
+      map("n", "w", change_working_directory)
 
-      map('i', '<c-f>', find_project_files)
-      map('i', '<c-b>', browse_project_files)
-      map('i', '<c-s>', search_in_project_files)
-      map('i', '<c-r>', recent_project_files)
-      map('i', '<c-w>', change_working_directory)
+      map("i", "<c-f>", find_project_files)
+      map("i", "<c-b>", browse_project_files)
+      map("i", "<c-s>", search_in_project_files)
+      map("i", "<c-r>", recent_project_files)
+      map("i", "<c-w>", change_working_directory)
 
       local on_project_selected = function()
         find_project_files(prompt_bufnr)
@@ -127,6 +135,6 @@ local function projects(opts)
   }):find()
 end
 
-return telescope.register_extension {
+return telescope.register_extension({
   exports = { projects = projects },
-}
+})
