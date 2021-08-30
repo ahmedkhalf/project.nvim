@@ -173,7 +173,7 @@ function M.set_pwd(dir, method)
       vim.api.nvim_set_current_dir(dir)
 
       if config.options.silent_chdir == false then
-        print("Set CWD to", dir, "using", method)
+        vim.notify("Set CWD to " .. dir .. " using " .. method)
       end
     end
     return true
