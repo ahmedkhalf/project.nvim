@@ -21,7 +21,7 @@ function M.find_lsp_root()
     local filetypes = client.config.filetypes
     if filetypes and vim.tbl_contains(filetypes, buf_ft) then
       if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
-        return client.config.root_dir
+        return client.config.root_dir, client.name
       end
     end
   end
@@ -186,9 +186,9 @@ function M.get_project_root()
   -- returns project root, as well as method
   for _, detection_method in ipairs(config.options.detection_methods) do
     if detection_method == "lsp" then
-      local root = M.find_lsp_root()
+      local root, lsp_name = M.find_lsp_root()
       if root ~= nil then
-        return root, "lsp"
+        return root, '"' .. lsp_name .. '"' .. " lsp"
       end
     elseif detection_method == "pattern" then
       local root, method = M.find_pattern_root()
