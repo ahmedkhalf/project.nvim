@@ -1,6 +1,7 @@
 local config = require("project_nvim.config")
 local history = require("project_nvim.utils.history")
 local glob = require("project_nvim.utils.globtopattern")
+local path = require("project_nvim.utils.path")
 local uv = vim.loop
 local M = {}
 
@@ -223,6 +224,11 @@ function M.on_buf_enter()
   end
 
   if not M.is_file() then
+    return
+  end
+
+  local current_dir = vim.fn.expand("%:p:h", true)
+  if path.is_excluded(current_dir) then
     return
   end
 

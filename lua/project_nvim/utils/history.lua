@@ -50,7 +50,7 @@ local function deserialize_history(history_data)
   -- split data to table
   local projects = {}
   for s in history_data:gmatch("[^\r\n]+") do
-    if dir_exists(s) then
+    if not path.is_excluded(s) and dir_exists(s) then
       table.insert(projects, s)
     end
   end

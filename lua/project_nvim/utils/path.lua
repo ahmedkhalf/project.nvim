@@ -1,3 +1,4 @@
+local config = require("project_nvim.config")
 local uv = vim.loop
 local M = {}
 
@@ -17,6 +18,16 @@ function M.create_scaffolding(callback)
   else -- sync
     uv.fs_mkdir(M.projectpath, 448)
   end
+end
+
+function M.is_excluded(dir)
+  for _, dir_pattern in ipairs(config.options.exclude_dirs) do
+    if dir:match(dir_pattern) ~= nil then
+      return true
+    end
+  end
+
+  return false
 end
 
 return M

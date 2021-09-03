@@ -20,6 +20,10 @@ local defaults = {
   -- eg: { "efm", ... }
   ignore_lsp = {},
 
+  -- Don't calculate root dir on specific directories
+  -- Ex: { "~/.cargo/*", ... }
+  exclude_dirs = {},
+
   -- Show hidden files in telescope
   show_hidden = false,
 
@@ -37,6 +41,16 @@ M.options = {}
 
 M.setup = function(options)
   M.options = vim.tbl_deep_extend("force", defaults, options or {})
+
+  local glob = require("project_nvim.utils.globtopattern")
+  local home = vim.fn.expand("~")
+  M.options.exclude_dirs = vim.tbl_map(function(pattern)
+    if vim.startswith(pattern, "~/") then
+      pattern = home .. "/" .. pattern:sub(3, #pattern)
+    end
+    return glob.globtopattern(pattern)
+  end, M.options.exclude_dirs)
+
   require("project_nvim.utils.path").init()
   require("project_nvim.project").init()
 end
