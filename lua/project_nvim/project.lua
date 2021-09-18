@@ -32,6 +32,10 @@ end
 
 function M.find_pattern_root()
   local search_dir = vim.fn.expand("%:p:h", true)
+  if vim.fn.has("win32") > 0 then
+    search_dir = search_dir:gsub("\\", "/")
+  end
+
   local last_dir_cache = ""
   local curr_dir_cache = {}
 
