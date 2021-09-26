@@ -22,13 +22,28 @@ superior project management.
   - Please add the following to your config instead:
     ```vim
     " Vim Script
-    let g:nvim_tree_update_cwd = 1
     let g:nvim_tree_respect_buf_cwd = 1
+    
+    lua << EOF
+    require("nvim-tree").setup({
+      update_cwd = true,
+      update_focused_file = {
+        enable = true,
+        update_cwd = true
+      },
+    EOF
     ```
     ```lua
     -- lua
-    vim.g.nvim_tree_update_cwd = 1
     vim.g.nvim_tree_respect_buf_cwd = 1
+    
+    require("nvim-tree").setup({
+      update_cwd = true,
+      update_focused_file = {
+        enable = true,
+        update_cwd = true
+      },
+    })
     ```
 
 ## 📦 Installation
