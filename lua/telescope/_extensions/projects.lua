@@ -11,6 +11,7 @@ local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local telescope_config = require("telescope.config").values
 local actions = require("telescope.actions")
+local state = require("telescope.actions.state")
 local builtin = require("telescope.builtin")
 local entry_display = require("telescope.pickers.entry_display")
 
@@ -23,7 +24,7 @@ local config = require("project_nvim.config")
 ----------
 
 local function change_working_directory(prompt_bufnr, prompt)
-  local selected_entry = actions.get_selected_entry(prompt_bufnr)
+  local selected_entry = state.get_selected_entry(prompt_bufnr)
   if selected_entry == nil then
     actions.close(prompt_bufnr)
     return
