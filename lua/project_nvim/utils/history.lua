@@ -46,6 +46,14 @@ local function delete_duplicates(tbl)
   return res
 end
 
+function M.delete_project(project)
+  for k, v in ipairs(M.recent_projects) do
+    if v == project.value then
+      M.recent_projects[k] = nil
+    end
+  end
+end
+
 local function deserialize_history(history_data)
   -- split data to table
   local projects = {}
