@@ -28,19 +28,21 @@ end
 local function delete_duplicates(tbl)
   local cache_dict = {}
   for _, v in ipairs(tbl) do
-    if cache_dict[v] == nil then
-      cache_dict[v] = 1
+    local normalised_path = v:gsub("\\", "/")
+    if cache_dict[normalised_path] == nil then
+      cache_dict[normalised_path] = 1
     else
-      cache_dict[v] = cache_dict[v] + 1
+      cache_dict[normalised_path] = cache_dict[normalised_path] + 1
     end
   end
 
   local res = {}
   for _, v in ipairs(tbl) do
-    if cache_dict[v] == 1 then
-      table.insert(res, v)
+    local normalised_path = v:gsub("\\", "/")
+    if cache_dict[normalised_path] == 1 then
+      table.insert(res, normalised_path)
     else
-      cache_dict[v] = cache_dict[v] - 1
+      cache_dict[normalised_path] = cache_dict[normalised_path] - 1
     end
   end
   return res
