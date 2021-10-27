@@ -34,6 +34,16 @@ local defaults = {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- Function to call when you select a project from telecope
+  -- Accepts:
+  --    "find_project_files"        : call 'Telescope find_files' on project
+  --    "browse_project_files"      : call 'Telescope file_browser' on project
+  --    "search_in_project_files"   : call 'Telescope live_grep' on project
+  --    "recent_project_files"      : call 'Telescope oldfiles' on project
+  --    "change_working_directory"  : just change the directory
+  -- Note: All will change the directory regardless
+  telescope_on_project_selected = "find_project_files"
 }
 
 ---@type ProjectOptions
