@@ -31,6 +31,7 @@ superior project management.
         enable = true,
         update_cwd = true
       },
+    })
     EOF
     ```
     ```lua
