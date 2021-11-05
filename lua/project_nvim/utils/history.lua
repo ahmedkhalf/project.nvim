@@ -1,6 +1,7 @@
 local path = require("project_nvim.utils.path")
 local uv = vim.loop
 local M = {}
+local is_windows = vim.fn.has('win32') or vim.fn.has('wsl')
 
 M.recent_projects = nil -- projects from previous neovim sessions
 M.session_projects = {} -- projects from current neovim session
@@ -25,10 +26,20 @@ local function dir_exists(dir)
   return false
 end
 
+local function normalise_path(path_to_normalise)
+    local normalised_path = path_to_normalise:gsub("\\", "/")
+
+    if is_windows then
+       normalised_path = normalised_path:sub(1,1):lower()..normalised_path:sub(2)
+    end
+
+    return normalised_path
+end
+
 local function delete_duplicates(tbl)
   local cache_dict = {}
   for _, v in ipairs(tbl) do
-    local normalised_path = v:gsub("\\", "/")
+    local normalised_path = normalise_path(v)
     if cache_dict[normalised_path] == nil then
       cache_dict[normalised_path] = 1
     else
@@ -38,7 +49,7 @@ local function delete_duplicates(tbl)
 
   local res = {}
   for _, v in ipairs(tbl) do
-    local normalised_path = v:gsub("\\", "/")
+    local normalised_path = normalise_path(v)
     if cache_dict[normalised_path] == 1 then
       table.insert(res, normalised_path)
     else
