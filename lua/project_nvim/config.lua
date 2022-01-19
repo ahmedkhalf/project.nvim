@@ -51,6 +51,8 @@ M.setup = function(options)
     return glob.globtopattern(pattern)
   end, M.options.exclude_dirs)
 
+  vim.opt.autochdir = false -- implicitly unset autochdir
+
   require("project_nvim.utils.path").init()
   require("project_nvim.project").init()
 end
