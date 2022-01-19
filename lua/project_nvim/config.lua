@@ -1,7 +1,7 @@
 local M = {}
 
 ---@class ProjectOptions
-local defaults = {
+M.defaults = {
   -- Manual mode doesn't automatically change your root directory, so you have
   -- the option to manually do so using `:ProjectRoot` command.
   manual_mode = false,
@@ -40,7 +40,7 @@ local defaults = {
 M.options = {}
 
 M.setup = function(options)
-  M.options = vim.tbl_deep_extend("force", defaults, options or {})
+  M.options = vim.tbl_deep_extend("force", M.defaults, options or {})
 
   local glob = require("project_nvim.utils.globtopattern")
   local home = vim.fn.expand("~")
