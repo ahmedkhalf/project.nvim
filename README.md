@@ -192,8 +192,8 @@ require('telescope').load_extension('projects')
 Get a list of recent projects:
 
 ```lua
-local projects = require("project_nvim.utils.history")
-local recent_projects = projects.get_recent_projects()
+local project_nvim = require("project_nvim")
+local recent_projects = project_nvim.get_recent_projects()
 
 print(vim.inspect(recent_projects))
 ```
