@@ -126,13 +126,6 @@ use {
 Even if you are pleased with the defaults, please note that `setup {}` must be
 called for the plugin to start.
 
-### Telescope Integration
-
-To enable telescope integration:
-```lua
-require('telescope').load_extension('projects')
-```
-
 ### Pattern Matching
 
 **project.nvim**'s pattern engine uses the same expressions as vim-rooter, but
@@ -173,6 +166,37 @@ detection_methods = { "!.git/worktrees", "!=extras", "!^fixtures", "!build/env.s
 ```
 
 List your exclusions before the patterns you do want.
+
+### Telescope Integration
+
+To enable telescope integration:
+```lua
+require('telescope').load_extension('projects')
+```
+
+#### Telescope mappings
+
+**project.nvim** comes with the following mappings:
+
+| Normal mode | Insert mode | Action                     |
+| ----------- | ----------- | -------------------------- |
+| f           | \<c-f\>     | find\_project\_files       |
+| b           | \<c-b\>     | browse\_project\_files     |
+| d           | \<c-d\>     | delete\_project            |
+| s           | \<c-s\>     | search\_in\_project\_files |
+| r           | \<c-r\>     | recent\_project\_files     |
+| w           | \<c-w\>     | change\_working\_directory |
+
+## API
+
+Get a list of recent projects:
+
+```lua
+local projects = require("project_nvim.utils.history")
+local recent_projects = projects.get_recent_projects()
+
+print(vim.inspect(recent_projects))
+```
 
 ## 🤝 Contributing
 
