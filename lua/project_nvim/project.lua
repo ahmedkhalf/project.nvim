@@ -237,6 +237,13 @@ function M.on_buf_enter()
   end
 
   local root, method = M.get_project_root()
+
+  -- Fallback to current dir if buffer is not in any project
+  if root == nil then
+    root = current_dir
+    method = 'CWD'
+  end
+
   M.set_pwd(root, method)
 end
 
