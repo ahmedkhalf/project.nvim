@@ -88,12 +88,17 @@ end
 
 local function browse_project_files(prompt_bufnr)
   local project_path, cd_successful = change_working_directory(prompt_bufnr, true)
-  local opt = {
-    cwd = project_path,
-    hidden = config.options.show_hidden,
-  }
+  local ok, file_browser = pcall(require, "telescope._extensions.file_browser")
+  if not ok then
+    return
+  end
   if cd_successful then
-    builtin.file_browser(opt)
+    file_browser.exports.file_browser({
+      cwd = project_path,
+      hidden = config.options.show_hidden,
+      initial_mode = "normal",
+      hide_parent_dir = true,
+    })
   end
 end
 
