@@ -120,6 +120,10 @@ use {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- If all patterns fail to match, project.nvim will change the directory to
+  -- current buffer's location
+  patterns_fallback = false,
 }
 ```
 

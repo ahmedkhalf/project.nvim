@@ -184,6 +184,16 @@ function M.set_pwd(dir, method)
     return true
   end
 
+  if config.options.patterns_fallback == true then
+    dir = vim.fn.expand("%:p:h") 
+    if vim.fn.getcwd() ~= dir then
+      vim.api.nvim_set_current_dir(vim.fn.expand("%:p:h"))
+      if config.options.silent_chdir == false then
+        vim.notify("Set CWD to " .. dir .. " using " .. "fallback")
+      end
+    end
+  end
+
   return false
 end
 
