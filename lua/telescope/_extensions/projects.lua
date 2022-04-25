@@ -80,6 +80,7 @@ local function find_project_files(prompt_bufnr)
   local opt = {
     cwd = project_path,
     hidden = config.options.show_hidden,
+    mode = "insert",
   }
   if cd_successful then
     builtin.find_files(opt)
@@ -102,6 +103,7 @@ local function search_in_project_files(prompt_bufnr)
   local opt = {
     cwd = project_path,
     hidden = config.options.show_hidden,
+    mode = "insert",
   }
   if cd_successful then
     builtin.live_grep(opt)
