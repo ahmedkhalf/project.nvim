@@ -27,7 +27,7 @@ local function dir_exists(dir)
 end
 
 local function normalise_path(path_to_normalise)
-    local normalised_path = path_to_normalise:gsub("\\", "/")
+    local normalised_path = path_to_normalise:gsub("\\", "/"):gsub("//", "/")
 
     if is_windows then
        normalised_path = normalised_path:sub(1,1):lower()..normalised_path:sub(2)
