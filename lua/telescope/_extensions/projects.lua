@@ -164,8 +164,16 @@ local function projects(opts)
       map("i", "<c-r>", recent_project_files)
       map("i", "<c-w>", change_working_directory)
 
+      local select_fn_map = {
+        ["find_project_files"] = find_project_files,
+        ["browse_project_files"] = browse_project_files,
+        ["search_in_project_files"] = search_in_project_files,
+        ["recent_project_files"] = recent_project_files,
+        ["change_working_directory"] = change_working_directory
+      }
+
       local on_project_selected = function()
-        find_project_files(prompt_bufnr)
+        select_fn_map[config.options.telescope_on_project_selected](prompt_bufnr)
       end
       actions.select_default:replace(on_project_selected)
       return true
