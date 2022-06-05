@@ -240,6 +240,13 @@ function M.on_buf_enter()
   M.set_pwd(root, method)
 end
 
+-- global function to manually add a project
+function _ADD_CURR_DIR_TO_PROJECTS()
+  local historyfile = require("project_nvim.utils.path").historyfile
+  local curr_directory = vim.fn.expand("%:p:h")
+  vim.cmd("!echo " .. curr_directory .. " >> " .. historyfile)
+end
+
 function M.init()
   local autocmds = {}
   if not config.options.manual_mode then
@@ -254,8 +261,9 @@ function M.init()
     command! ProjectRoot lua require("project_nvim.project").on_buf_enter()
   ]])
 
-  autocmds[#autocmds + 1] =
-    'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
+  vim.cmd("command! ProjectAddMuanually lua _ADD_CURR_DIR_TO_PROJECTS()")
+
+  autocmds[#autocmds + 1] = 'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
 
   vim.cmd([[augroup project_nvim
             au!
