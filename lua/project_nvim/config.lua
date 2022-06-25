@@ -34,6 +34,9 @@ M.defaults = {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- Allows the user to declare a custom callback to execute on project selection
+  custom_callback = false,
 }
 
 ---@type ProjectOptions
