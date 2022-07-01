@@ -24,11 +24,11 @@ superior project management.
     " Vim Script
     lua << EOF
     require("nvim-tree").setup({
-      update_cwd = true,
+      sync_root_with_cwd = true,
       respect_buf_cwd = true,
       update_focused_file = {
         enable = true,
-        update_cwd = true
+        update_root = true
       },
     })
     EOF
@@ -36,11 +36,11 @@ superior project management.
     ```lua
     -- lua
     require("nvim-tree").setup({
+      sync_root_with_cwd = true,
       respect_buf_cwd = true,
-      update_cwd = true,
       update_focused_file = {
         enable = true,
-        update_cwd = true
+        update_root = true
       },
     })
     ```
