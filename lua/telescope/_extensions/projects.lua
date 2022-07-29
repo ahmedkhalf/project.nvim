@@ -166,7 +166,11 @@ local function projects(opts)
 
       local on_project_selected = function()
         find_project_files(prompt_bufnr)
+        if(config.options.custom_callback) then
+          config.options.custom_callback()
+        end
       end
+
       actions.select_default:replace(on_project_selected)
       return true
     end,
