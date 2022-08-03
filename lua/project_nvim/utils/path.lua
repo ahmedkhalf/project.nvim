@@ -30,4 +30,8 @@ function M.is_excluded(dir)
   return false
 end
 
+function M.exists(path)
+  return vim.fn.empty(vim.fn.glob(path)) == 0
+end
+
 return M
