@@ -40,7 +40,7 @@ function M.find_pattern_root()
   local curr_dir_cache = {}
 
   local function get_parent(path)
-    path = path:match("^(.*)/")
+    path = path:match("^(.*/)[^/]+/?$")
     if path == "" then
       path = "/"
     end
