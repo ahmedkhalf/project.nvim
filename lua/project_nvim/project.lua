@@ -171,8 +171,10 @@ end
 
 function M.set_pwd(dir, method)
   if dir ~= nil then
-    M.last_project = dir
-    table.insert(history.session_projects, dir)
+    if not vim.tbl_contains(config.options.ignore_history, method) then
+      M.last_project = dir
+      table.insert(history.session_projects, dir)
+    end
 
     if vim.fn.getcwd() ~= dir then
       vim.api.nvim_set_current_dir(dir)
@@ -200,6 +202,8 @@ function M.get_project_root()
       if root ~= nil then
         return root, method
       end
+    elseif detection_method == "parent" then
+      return vim.fn.expand("%:p:h", true), detection_method
     end
   end
 end

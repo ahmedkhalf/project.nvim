@@ -91,10 +91,19 @@ use {
   manual_mode = false,
 
   -- Methods of detecting the root directory. **"lsp"** uses the native neovim
-  -- lsp, while **"pattern"** uses vim-rooter like glob pattern matching. Here
-  -- order matters: if one is not detected, the other is used as fallback. You
-  -- can also delete or rearangne the detection methods.
-  detection_methods = { "lsp", "pattern" },
+  -- lsp, **"pattern"** uses vim-rooter like glob pattern matching, while
+  -- **"parent"** uses the parent directory of the current file. Here order
+  -- matters: if one is not detected, the other is used as fallback. You can
+  -- also delete or rearangne the detection methods.
+  detection_methods = {
+    "lsp",
+    "pattern",
+    -- "parent",
+  },
+
+  -- Don't store root directories detected using these specific methods in the
+  -- project history
+  ignore_history = { "parent" },
 
   -- All the patterns used to detect root dir, when **"pattern"** is in
   -- detection_methods
