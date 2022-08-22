@@ -173,18 +173,21 @@ function M.set_pwd(dir, method)
   if dir ~= nil then
     M.last_project = dir
     table.insert(history.session_projects, dir)
-
-    if vim.fn.getcwd() ~= dir then
-      vim.api.nvim_set_current_dir(dir)
-
-      if config.options.silent_chdir == false then
-        vim.notify("Set CWD to " .. dir .. " using " .. method)
-      end
-    end
-    return true
+  elseif config.options.fallback_buffer_dir then
+    dir = vim.fn.expand("%:p:h", true)
+    method = "buffer directory fallback"
+  else
+    return false
   end
 
-  return false
+  if vim.fn.getcwd() ~= dir then
+    vim.api.nvim_set_current_dir(dir)
+
+    if config.options.silent_chdir == false then
+      vim.notify("Set CWD to " .. dir .. " using " .. method)
+    end
+  end
+  return true
 end
 
 function M.get_project_root()
