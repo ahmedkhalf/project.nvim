@@ -115,6 +115,9 @@ use {
   -- directory.
   silent_chdir = true,
 
+  -- Change root directory to the buffer directory if it is outside a project
+  fallback_buffer_dir = false,
+
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
