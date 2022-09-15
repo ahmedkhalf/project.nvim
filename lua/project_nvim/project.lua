@@ -175,7 +175,16 @@ function M.set_pwd(dir, method)
     table.insert(history.session_projects, dir)
 
     if vim.fn.getcwd() ~= dir then
-      vim.api.nvim_set_current_dir(dir)
+      local scope_chdir = config.options.scope_chdir
+      if scope_chdir == 'global' then
+        vim.api.nvim_set_current_dir(dir)
+      elseif scope_chdir == 'tab' then
+        vim.cmd('tcd ' .. dir)
+      elseif scope_chdir == 'win' then
+        vim.cmd('lcd ' .. dir)
+      else
+        return
+      end
 
       if config.options.silent_chdir == false then
         vim.notify("Set CWD to " .. dir .. " using " .. method)
