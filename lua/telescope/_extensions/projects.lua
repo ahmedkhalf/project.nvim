@@ -165,7 +165,17 @@ local function projects(opts)
       map("i", "<c-w>", change_working_directory)
 
       local on_project_selected = function()
-        find_project_files(prompt_bufnr)
+        if config.options.project_selected_action == 'find' then
+          find_project_files(prompt_bufnr)
+        elseif config.options.project_selected_action == 'browse' then
+          browse_project_files(prompt_bufnr)
+        elseif config.options.project_selected_action == 'search' then
+          search_in_project_files(prompt_bufnr)
+        elseif config.options.project_selected_action == 'recent' then
+          recent_project_files(prompt_bufnr)
+        else
+          change_working_directory(prompt_bufnr, true)
+        end
       end
       actions.select_default:replace(on_project_selected)
       return true

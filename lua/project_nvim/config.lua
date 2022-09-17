@@ -34,6 +34,10 @@ M.defaults = {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- Action to do when a project is selected : 
+  -- find | browse | search | recent | none
+  project_selected_action = 'find'
 }
 
 ---@type ProjectOptions
