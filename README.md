@@ -179,6 +179,7 @@ To use the projects picker
 ```lua
 require'telescope'.extensions.projects.projects{}
 ```
+
 #### Telescope mappings
 
 **project.nvim** comes with the following mappings:
