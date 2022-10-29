@@ -178,6 +178,12 @@ To enable telescope integration:
 require('telescope').load_extension('projects')
 ```
 
+#### Telescope Projects Picker
+To use the projects picker
+```lua
+require'telescope'.extensions.projects.projects{}
+```
+
 #### Telescope mappings
 
 **project.nvim** comes with the following mappings:
