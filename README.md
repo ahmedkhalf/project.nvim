@@ -173,7 +173,8 @@ To enable telescope integration:
 ```lua
 require('telescope').load_extension('projects')
 ```
-### Telescope Projects Picker
+
+#### Telescope Projects Picker
 To use the projects picker
 ```lua
 require'telescope'.extensions.projects.projects{}
