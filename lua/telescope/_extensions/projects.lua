@@ -81,8 +81,9 @@ local function change_working_directory(prompt_bufnr, prompt)
     session_switch = false
   end
   if session_switch then
-    -- save current session before switch project
-    manager.save_current_session()
+	-- before switch project
+    -- save current session based on settings
+    manager.autosave_session()
   end
   local cd_successful = project.set_pwd(project_path, "telescope")
   if session_switch and cd_successful then
