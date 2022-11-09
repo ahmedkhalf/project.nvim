@@ -40,6 +40,11 @@ M.defaults = {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- If plugin 'Shatur/neovim-session-manager' is installed,
+  -- set this option to true if you want to open projects as sessions
+  -- as default action for ":Telescope projects"
+  session_autoload = false,
 }
 
 ---@type ProjectOptions

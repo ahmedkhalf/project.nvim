@@ -18,6 +18,8 @@ superior project management.
   - Access your recently opened projects from telescope!
   - Asynchronous file io so it will not slow down vim when reading the history
     file on startup.
+- Neovim Session Manager integration to create IDE-like project switching
+  - Set option `session_autoload = true` and `:Telescope projects` command will navigate you to chosen project's directory and your previously opened buffers will be restored. [Neovim Session Manager](https://github.com/Shatur/neovim-session-manager) need to be installed for this feature.
 - ~~Nvim-tree.lua support/integration~~
   - Please add the following to your config instead:
     ```vim
@@ -124,6 +126,11 @@ use {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- If plugin 'Shatur/neovim-session-manager' is installed,
+  -- set this option to true if you want to open projects as sessions
+  -- as default action for ":Telescope projects"
+  session_autoload = false,
 }
 ```
 

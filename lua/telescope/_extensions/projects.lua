@@ -6,6 +6,7 @@ if not has_telescope then
   return
 end
 
+local has_session_manager, manager = pcall(require, "session_manager")
 local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local telescope_config = require("telescope.config").values
@@ -71,7 +72,22 @@ local function change_working_directory(prompt_bufnr, prompt)
   else
     actions.close(prompt_bufnr)
   end
+  -- session_manager will change session if session_autoload is enabled
+  local session_switch = config.options.session_autoload
+  if session_switch and not has_session_manager then
+    print("Warning: session autoloading is enabled, but neovim-session-manager in not installed!")
+    print("Consider to install 'Shatur/neovim-session-manager' or")
+    print("change project.nvim option ('session_autoload' = false) to remove this message")
+    session_switch = false
+  end
+  if session_switch then
+    -- save current session before switch project
+    manager.save_current_session()
+  end
   local cd_successful = project.set_pwd(project_path, "telescope")
+  if session_switch and cd_successful then
+    manager.load_current_dir_session(false)
+  end
   return project_path, cd_successful
 end
 
@@ -164,9 +180,16 @@ local function projects(opts)
       map("i", "<c-r>", recent_project_files)
       map("i", "<c-w>", change_working_directory)
 
-      local on_project_selected = function()
-        find_project_files(prompt_bufnr)
-      end
+	  local on_project_selected
+	  if config.options.session_autoload and has_session_manager then
+		  on_project_selected = function()
+			  change_working_directory(prompt_bufnr, false)
+		  end
+	  else
+		  on_project_selected = function()
+			  find_project_files(prompt_bufnr)
+		  end
+	  end
       actions.select_default:replace(on_project_selected)
       return true
     end,
