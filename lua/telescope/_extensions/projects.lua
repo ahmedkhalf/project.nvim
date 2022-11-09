@@ -61,7 +61,7 @@ local function create_finder()
 end
 
 local function change_working_directory(prompt_bufnr, prompt)
-  local selected_entry = state.get_selected_entry(prompt_bufnr)
+  local selected_entry = state.get_selected_entry()
   if selected_entry == nil then
     actions.close(prompt_bufnr)
     return
@@ -139,7 +139,7 @@ local function recent_project_files(prompt_bufnr)
 end
 
 local function delete_project(prompt_bufnr)
-  local selectedEntry = state.get_selected_entry(prompt_bufnr)
+  local selectedEntry = state.get_selected_entry()
   if selectedEntry == nil then
     actions.close(prompt_bufnr)
     return
