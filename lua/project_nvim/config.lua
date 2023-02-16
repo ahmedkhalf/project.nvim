@@ -35,8 +35,12 @@ M.defaults = {
   -- telescope
   datapath = vim.fn.stdpath("data"),
 
-  -- Allows the user to declare a custom callback to execute on project selection
-  custom_callback = false,
+  -- Allows the user to declare a custom callback to execute before project selection
+  -- occurs, such as when moving from one project to another
+  before_project_selection_callback = false,
+
+  -- Allows the user to declare a custom callback to execute after project selection
+  after_project_selection_callback = false,
 }
 
 ---@type ProjectOptions

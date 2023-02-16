@@ -120,8 +120,13 @@ use {
   datapath = vim.fn.stdpath("data"),
 
   -- Allows the user to declare a custom callback to execute on project 
+  -- before a new project is selected and the working directory is changed.
+  -- Setting this to false means that nothing will be executed.
+  before_project_selection_callback = false,
+
+  -- Allows the user to declare a custom callback to execute on project 
   -- selection. Setting this to false means that nothing will be executed.
-  custom_callback = false,
+  after_project_selection_callback = false,
 }
 ```
 
