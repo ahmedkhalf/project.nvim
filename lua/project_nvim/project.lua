@@ -249,6 +249,11 @@ function M.on_buf_enter()
   M.set_pwd(root, method)
 end
 
+function M.add_project_manually()
+  local current_dir = vim.fn.expand("%:p:h", true)
+  M.set_pwd(current_dir, 'manual')
+end
+
 function M.init()
   local autocmds = {}
   if not config.options.manual_mode then
@@ -261,6 +266,7 @@ function M.init()
 
   vim.cmd([[
     command! ProjectRoot lua require("project_nvim.project").on_buf_enter()
+    command! AddProject lua require("project_nvim.project").add_project_manually()
   ]])
 
   autocmds[#autocmds + 1] =
