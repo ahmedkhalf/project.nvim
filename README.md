@@ -92,7 +92,7 @@ use {
   
   -- Because autochdir can conflict with this plugin to cause buggy behaviour,
   -- this plugin will disable autochdir by default.
-  disable_autochdir = true,
+  unset_autochdir = true,
 
   -- Methods of detecting the root directory. **"lsp"** uses the native neovim
   -- lsp, while **"pattern"** uses vim-rooter like glob pattern matching. Here
