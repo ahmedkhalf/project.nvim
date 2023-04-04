@@ -40,7 +40,7 @@ function M.find_pattern_root()
   local curr_dir_cache = {}
 
   local function get_parent(path)
-    path = path:match("^(.*)/")
+    path = path:match("^(.*/)[^/]+/?$")
     if path == "" then
       path = "/"
     end
@@ -171,8 +171,10 @@ end
 
 function M.set_pwd(dir, method)
   if dir ~= nil then
-    M.last_project = dir
-    table.insert(history.session_projects, dir)
+    if not vim.tbl_contains(config.options.ignore_history, method) then
+      M.last_project = dir
+      table.insert(history.session_projects, dir)
+    end
 
     if vim.fn.getcwd() ~= dir then
       local scope_chdir = config.options.scope_chdir
@@ -209,6 +211,8 @@ function M.get_project_root()
       if root ~= nil then
         return root, method
       end
+    elseif detection_method == "parent" then
+      return vim.fn.expand("%:p:h", true), detection_method
     end
   end
 end
