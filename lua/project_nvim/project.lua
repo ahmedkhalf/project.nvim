@@ -241,7 +241,7 @@ function M.on_buf_enter()
   end
 
   local current_dir = vim.fn.expand("%:p:h", true)
-  if path.is_excluded(current_dir) then
+  if not path.exists(current_dir) or path.is_excluded(current_dir) then
     return
   end
 
