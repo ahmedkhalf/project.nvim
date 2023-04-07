@@ -231,7 +231,18 @@ function M.is_file()
   return true
 end
 
+local active = true
+
+
+function M.toggle()
+  active = not active
+end
+
 function M.on_buf_enter()
+  if not active then
+    return
+  end
+
   if vim.v.vim_did_enter == 0 then
     return
   end
@@ -267,6 +278,9 @@ function M.init()
   vim.cmd([[
     command! ProjectRoot lua require("project_nvim.project").on_buf_enter()
     command! AddProject lua require("project_nvim.project").add_project_manually()
+  ]])
+  vim.cmd([[
+    command! ProjectToggle lua require("project_nvim.project").toggle()
   ]])
 
   autocmds[#autocmds + 1] =
