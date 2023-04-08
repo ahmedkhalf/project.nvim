@@ -165,8 +165,17 @@ local function projects(opts)
       map("i", "<c-w>", change_working_directory)
 
       local on_project_selected = function()
+        if(config.options.before_project_selection_callback) then
+          config.options.before_project_selection_callback()
+        end
+
         find_project_files(prompt_bufnr)
+
+        if(config.options.after_project_selection_callback) then
+          config.options.after_project_selection_callback()
+        end
       end
+
       actions.select_default:replace(on_project_selected)
       return true
     end,
