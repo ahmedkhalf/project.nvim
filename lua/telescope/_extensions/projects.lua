@@ -94,7 +94,7 @@ local function browse_project_files(prompt_bufnr)
     hidden = config.options.show_hidden,
   }
   if cd_successful then
-    builtin.file_browser(opt)
+    require("telescope").extensions.file_browser.file_browser(opt)
   end
 end
 
