@@ -206,6 +206,17 @@ local project_nvim = require("project_nvim")
 local recent_projects = project_nvim.get_recent_projects()
 
 print(vim.inspect(recent_projects))
+# Prints: { "/path/to/a/project", "/path/to/another-project" }
+```
+
+Get project root path:
+
+```lua
+local project_nvim = require("project_nvim")
+local project_path, method = project_nvim.get_project_root()
+
+print(project_path, method)
+# Prints: "/path/to/a/project" "pattern .git"
 ```
 
 ## 🤝 Contributing
