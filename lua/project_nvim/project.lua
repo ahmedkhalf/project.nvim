@@ -12,17 +12,30 @@ M.last_project = nil
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local original_bufnr = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_active_clients({ bufnr = original_bufnr })
+  local fname = vim.api.nvim_buf_get_name(original_bufnr)
+  local root_dir = nil
   if next(clients) == nil then
     return nil
   end
 
   for _, client in pairs(clients) do
-    local filetypes = client.config.filetypes
-    if filetypes and vim.tbl_contains(filetypes, buf_ft) then
-      if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
-        return client.config.root_dir, client.name
+    if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
+      local workspace_folders = vim.fn.has("nvim-0.9") == 1 and client.workspace_folders or client.workspaceFolders
+      local is_windows = uv.os_uname().version:match("Windows")
+      fname = uv.fs_realpath(fname) or vim.fn.fnamemodify(vim.fn.resolve(fname), ":p")
+      if is_windows then
+        fname:gsub("%/", "%\\")
+      end
+      if workspace_folders then
+        for _, schema in ipairs(workspace_folders) do
+          local ws_dir = uv.fs_realpath(schema.name)
+          if ws_dir and fname:sub(1, ws_dir:len()) == ws_dir then
+            root_dir = schema.name
+            return root_dir, client.name
+          end
+        end
       end
     end
   end
