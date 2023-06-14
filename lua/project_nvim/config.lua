@@ -35,7 +35,10 @@ M.defaults = {
   -- * global (default)
   -- * tab
   -- * win
-  scope_chdir = 'global',
+  scope_chdir = "global",
+
+  -- Use Telescope's git_files when the project directory is a git repo
+  use_git_files = false,
 
   -- Path where project.nvim will store the project history for use in
   -- telescope
