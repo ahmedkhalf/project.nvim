@@ -85,7 +85,7 @@ local function find_project_files(prompt_bufnr)
   }
   local _, ret, _ = utils.get_os_command_output({ "git", "rev-parse", "--is-inside-work-tree" })
   if cd_successful then
-    if ret == 0 then
+    if ret == 0 and config.options.use_git_files then
       builtin.git_files(opt)
     else
       builtin.find_files(opt)
