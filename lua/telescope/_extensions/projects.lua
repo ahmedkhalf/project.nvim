@@ -177,8 +177,7 @@ local function projects(opts)
         actions.select_default:replace(on_project_selected)
         return true
       end,
-    })
-    :find()
+    }):find()
 end
 
 return telescope.register_extension({
