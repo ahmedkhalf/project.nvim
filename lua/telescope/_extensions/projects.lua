@@ -164,10 +164,19 @@ local function projects(opts)
       map("i", "<c-r>", recent_project_files)
       map("i", "<c-w>", change_working_directory)
 
-      local on_project_selected = function()
-        find_project_files(prompt_bufnr)
+      local default_action = function()
+        local action_table = {
+          find = find_project_files,
+          browse = browse_project_files,
+          search = search_in_project_files,
+          recent = recent_project_files,
+          cd = change_working_directory,
+        }
+        local action = action_table[config.options.telescope_default_action]
+        action(prompt_bufnr)
       end
-      actions.select_default:replace(on_project_selected)
+
+      actions.select_default:replace(default_action)
       return true
     end,
   }):find()
