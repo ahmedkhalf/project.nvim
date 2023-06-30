@@ -124,6 +124,15 @@ use {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- Default action that will be executed on <CR> when selecting project
+  -- in telescope. valid options are
+  -- * find   - find files
+  -- * browse - browse files
+  -- * search - search in project with live_grep
+  -- * cd     - change directory
+  -- * recent - browse recent files
+  telescope_default_action = "find"
 }
 ```
 
