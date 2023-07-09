@@ -203,7 +203,6 @@ function M.set_pwd(dir, method)
 
       -- handle set_pwd from Telescope/ other plugins
       if config.options.enable_window_local_dir == true and method ~= 'local' then
-        -- local_dirs['w' .. vim.fn.win_getid()] = nil
         local_dirs[get_buf_name()] = nil
       end
     end
@@ -265,10 +264,8 @@ function M.on_buf_leave()
   local new_dir = vim.fn.getcwd(vim.fn.win_getid())
   local root, _ = M.get_project_root()
   if new_dir ~= root then
-     -- vim.notify("Insert:buf " .. vim.fn.bufnr() .. ": CWD (" .. new_dir .. "). root(" .. root .. ")." .. vim.inspect(local_dirs))
     local_dirs[get_buf_name()] = new_dir
   else
-    -- vim.notify("default root. before removing entry " .. vim.fn.bufnr() .. ". old: " .. vim.inspect(local_dirs))
     local_dirs[get_buf_name()] = nil
   end
 end
@@ -287,23 +284,12 @@ function M.on_buf_enter()
     return
   end
 
-  -- vim.notify("buf_enter: buf# " .. vim.fn.bufnr() .. vim.inspect(local_dirs))
   if local_dirs[get_buf_name()] then
-    -- vim.notify('Found window specific dir ' .. local_dirs[vim.fn.bufnr()])
     M.set_pwd(local_dirs[get_buf_name()], "local")
   else
     local root, method = M.get_project_root()
     M.set_pwd(root, method)
   end
-  -- if local_dirs['b' .. vim.fn.bufnr()] then
-  --   -- vim.notify('Found window specific dir ' .. local_dirs[vim.fn.bufnr()])
-  --   M.set_pwd(local_dirs['b' .. vim.fn.bufnr()], "local")
-  -- elseif local_dirs['w' .. vim.fn.win_getid()] then
-  --   M.set_pwd(local_dirs['w' .. vim.fn.win_getid()], "local")
-  -- else
-  --   local root, method = M.get_project_root()
-  --   M.set_pwd(root, method)
-  -- end
 end
 
 function M.add_project_manually()
