@@ -37,6 +37,17 @@ M.defaults = {
   -- * win
   scope_chdir = 'global',
 
+  -- Custom callback to allow the name to be altered before display.
+  -- Displays the tail component of the path by default.
+  -- * function(path) return vim.fn.fnamemodify(path, ":t") end
+  transform_name = nil,
+
+  -- Custom callback to allow the path to be altered before display.
+  -- Displays an absolute path by default.
+  -- Ex: to shorten /home/me/projects/my-project into ~/projects/my-project, you can use:
+  -- * function(path) return vim.fn.fnamemodify(path, ":~") end
+  transform_path = nil,
+
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),

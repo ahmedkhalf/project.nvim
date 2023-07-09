@@ -42,16 +42,27 @@ local function create_finder()
   })
 
   local function make_display(entry)
-    return displayer({ entry.name, { entry.value, "Comment" } })
+    return displayer({ entry.name, { entry.display_path, "Comment" } })
   end
 
   return finders.new_table({
     results = results,
     entry_maker = function(entry)
       local name = vim.fn.fnamemodify(entry, ":t")
+      local display_path = entry
+
+      if config.options.transform_name ~= nil then
+        name = config.options.transform_name(entry)
+      end
+
+      if config.options.transform_path ~= nil then
+        display_path = config.options.transform_path(entry)
+      end
+
       return {
         display = make_display,
         name = name,
+        display_path = display_path,
         value = entry,
         ordinal = name .. " " .. entry,
       }
