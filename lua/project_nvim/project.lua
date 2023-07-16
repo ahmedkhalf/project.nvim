@@ -4,6 +4,7 @@ local glob = require("project_nvim.utils.globtopattern")
 local path = require("project_nvim.utils.path")
 local uv = vim.loop
 local M = {}
+local local_dirs = {}
 
 -- Internal states
 M.attached_lsp = false
@@ -169,6 +170,16 @@ function M.attach_to_lsp()
   M.attached_lsp = true
 end
 
+local function get_buf_name()
+    if config.options.enable_buffer_local_dir == true then
+      return 'b' .. vim.fn.bufnr()
+    end
+    if config.options.enable_window_local_dir == true then
+      return 'w' .. vim.fn.win_getid()
+    end
+    return nil
+end
+
 function M.set_pwd(dir, method)
   if dir ~= nil then
     M.last_project = dir
@@ -187,7 +198,12 @@ function M.set_pwd(dir, method)
       end
 
       if config.options.silent_chdir == false then
-        vim.notify("Set CWD to " .. dir .. " using " .. method)
+        vim.notify("buf " .. vim.fn.bufnr() .. ": Set CWD to " .. dir .. " using " .. method)
+      end
+
+      -- handle set_pwd from Telescope/ other plugins
+      if config.options.enable_window_local_dir == true and method ~= 'local' then
+        local_dirs[get_buf_name()] = nil
       end
     end
     return true
@@ -231,6 +247,29 @@ function M.is_file()
   return true
 end
 
+function M.on_buf_leave()
+  if not M.is_file() then
+    return
+  end
+
+  if config.options.enable_buffer_local_dir == false and config.options.enable_window_local_dir == false then
+    return
+  end
+
+  local current_dir = vim.fn.expand("%:p:h", true)
+  if not path.exists(current_dir) or path.is_excluded(current_dir) then
+    return
+  end
+
+  local new_dir = vim.fn.getcwd(vim.fn.win_getid())
+  local root, _ = M.get_project_root()
+  if new_dir ~= root then
+    local_dirs[get_buf_name()] = new_dir
+  else
+    local_dirs[get_buf_name()] = nil
+  end
+end
+
 function M.on_buf_enter()
   if vim.v.vim_did_enter == 0 then
     return
@@ -245,8 +284,12 @@ function M.on_buf_enter()
     return
   end
 
-  local root, method = M.get_project_root()
-  M.set_pwd(root, method)
+  if local_dirs[get_buf_name()] then
+    M.set_pwd(local_dirs[get_buf_name()], "local")
+  else
+    local root, method = M.get_project_root()
+    M.set_pwd(root, method)
+  end
 end
 
 function M.add_project_manually()
@@ -258,6 +301,7 @@ function M.init()
   local autocmds = {}
   if not config.options.manual_mode then
     autocmds[#autocmds + 1] = 'autocmd VimEnter,BufEnter * ++nested lua require("project_nvim.project").on_buf_enter()'
+    autocmds[#autocmds + 1] = 'autocmd VimLeave,BufLeave * ++nested lua require("project_nvim.project").on_buf_leave()'
 
     if vim.tbl_contains(config.options.detection_methods, "lsp") then
       M.attach_to_lsp()

@@ -27,6 +27,14 @@ M.defaults = {
   -- Show hidden files in telescope
   show_hidden = false,
 
+  -- Retain directory settings for buffer. Override detection method.
+  -- If directory was changed, the buffer will retain the same directory
+  enable_buffer_local_dir = false,
+
+  -- Retain directory settings for window. Override detection method.
+  -- All buffers opened on the window will retain the directory
+  enable_window_local_dir = false,
+
   -- When set to false, you will get a message when project.nvim changes your
   -- directory.
   silent_chdir = true,

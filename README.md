@@ -111,6 +111,14 @@ use {
   -- Show hidden files in telescope
   show_hidden = false,
 
+  -- Retain directory settings for buffer. Override detection method.
+  -- If directory was changed, the buffer will retain the same directory
+  enable_buffer_local_dir = false,
+
+  -- Retain directory settings for window. Override detection method.
+  -- All buffers opened on the window will retain the directory
+  enable_window_local_dir = false,
+
   -- When set to false, you will get a message when project.nvim changes your
   -- directory.
   silent_chdir = true,
@@ -170,6 +178,16 @@ patterns = { "!.git/worktrees", "!=extras", "!^fixtures", "!build/env.sh" }
 ```
 
 List your exclusions before the patterns you do want.
+
+### CWD scope and Window/Buffer Local directories
+By default project.nvim sets the CWD to root of the project as explained above.
+The directory being set scope can be set to tab/global/ as controlled by scope_chdir.
+
+Occasionally, it is desirable to pin certain buffer to a specific directory. **enable_buffer_local_dir** can help you with it. With this option set, when user changes the working directory using "cd" while editing a buffer, the buffer will always stay in that directory all the time. All other buffers will continue to use the default working directory.
+
+Similarly, a given window could be pinned to always use same directory. Any bufferes opened in that that window will always be opened in that directory. This is useful when sometimes the user uses "gf" to open files relative to that directory. To enable this, use **enable_window_local_dir** option.
+
+NOTE: When both options are enabled, buffer local directory will be used over if window local diretory setting.
 
 ### Telescope Integration
 
