@@ -232,6 +232,16 @@ function M.is_file()
 end
 
 function M.on_buf_enter()
+  -- if filetype is excluded, return
+  for _, filetype in pairs(config.options.exclude_filetype_chdir) do
+    if filetype == vim.bo.filetype then return end
+  end
+
+  -- if buftype is excluded, return
+  for _, buftype in pairs(config.options.exclude_buftype_chdir) do
+    if buftype == vim.bo.buftype then return end
+  end
+
   if vim.v.vim_did_enter == 0 then
     return
   end
