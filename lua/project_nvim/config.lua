@@ -57,7 +57,7 @@ M.defaults = {
       delete_project = "<c-d>",
       search_in_project_files = "<c-s>",
       recent_project_files = "<c-r>",
-      change_workding_directory = "<c-w>",
+      change_working_directory = "<c-w>",
     }
   }
 }
