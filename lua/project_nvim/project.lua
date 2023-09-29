@@ -13,7 +13,7 @@ function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
   local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local clients = vim.lsp.get_active_clients({ bufnr = 0 })
   if next(clients) == nil then
     return nil
   end
@@ -22,7 +22,21 @@ function M.find_lsp_root()
     local filetypes = client.config.filetypes
     if filetypes and vim.tbl_contains(filetypes, buf_ft) then
       if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
-        return client.config.root_dir, client.name
+        local workspace_folders = client.config.workspace_folders
+
+        -- if there is more than 1 workspace_folder find the best one
+        -- otherwise, rely on current behavior
+        if workspace_folders and #workspace_folders > 1 then
+          local buf_path = 'file://' .. vim.api.nvim_buf_get_name(0)
+          for _, wrks in ipairs(workspace_folders) do
+            if buf_path:find(wrks.uri, 1, true) then
+              -- remove file:// prefix
+              return wrks.uri:sub(8), client.name
+            end
+          end
+        else
+          return client.config.root_dir, client.name
+        end
       end
     end
   end
@@ -144,7 +158,7 @@ end
 
 ---@diagnostic disable-next-line: unused-local
 local on_attach_lsp = function(client, bufnr)
-  M.on_buf_enter() -- Recalculate root dir after lsp attaches
+  M.on_buf_enter()   -- Recalculate root dir after lsp attaches
 end
 
 function M.attach_to_lsp()
@@ -257,7 +271,8 @@ end
 function M.init()
   local autocmds = {}
   if not config.options.manual_mode then
-    autocmds[#autocmds + 1] = 'autocmd VimEnter,BufEnter * ++nested lua require("project_nvim.project").on_buf_enter()'
+    autocmds[#autocmds + 1] =
+    'autocmd VimEnter,BufEnter * ++nested lua require("project_nvim.project").on_buf_enter()'
 
     if vim.tbl_contains(config.options.detection_methods, "lsp") then
       M.attach_to_lsp()
@@ -270,7 +285,7 @@ function M.init()
   ]])
 
   autocmds[#autocmds + 1] =
-    'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
+  'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
 
   vim.cmd([[augroup project_nvim
             au!
