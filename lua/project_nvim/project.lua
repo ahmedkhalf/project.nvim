@@ -31,7 +31,7 @@ function M.find_lsp_root()
 end
 
 function M.find_pattern_root()
-  local search_dir = vim.fn.expand("%:p:h", true)
+  local search_dir = config.options.get_current_dir_fn()
   if vim.fn.has("win32") > 0 then
     search_dir = search_dir:gsub("\\", "/")
   end
@@ -176,12 +176,12 @@ function M.set_pwd(dir, method)
 
     if vim.fn.getcwd() ~= dir then
       local scope_chdir = config.options.scope_chdir
-      if scope_chdir == 'global' then
+      if scope_chdir == "global" then
         vim.api.nvim_set_current_dir(dir)
-      elseif scope_chdir == 'tab' then
-        vim.cmd('tcd ' .. dir)
-      elseif scope_chdir == 'win' then
-        vim.cmd('lcd ' .. dir)
+      elseif scope_chdir == "tab" then
+        vim.cmd("tcd " .. dir)
+      elseif scope_chdir == "win" then
+        vim.cmd("lcd " .. dir)
       else
         return
       end
@@ -251,7 +251,7 @@ end
 
 function M.add_project_manually()
   local current_dir = vim.fn.expand("%:p:h", true)
-  M.set_pwd(current_dir, 'manual')
+  M.set_pwd(current_dir, "manual")
 end
 
 function M.init()
