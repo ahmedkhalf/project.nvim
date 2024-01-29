@@ -35,7 +35,12 @@ M.defaults = {
   -- * global (default)
   -- * tab
   -- * win
-  scope_chdir = 'global',
+  scope_chdir = "global",
+
+  -- Function to get current directory
+  get_current_dir_fn = function()
+    return vim.fn.expand("%:p:h", true)
+  end,
 
   -- Path where project.nvim will store the project history for use in
   -- telescope
