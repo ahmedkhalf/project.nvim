@@ -38,6 +38,9 @@ M.defaults = {
   scope_chdir = "global",
 
   -- Function to get current directory
+  -- This is used by `find_pattern_root` to get the directory of the current buffer. For buffers like oil.nvim, the
+  -- usual vim.fn.expand will not work, since the it returns a URI instead of a path. For buffers like this, you can
+  -- customize how project.nvim obtains the current dir.
   get_current_dir_fn = function()
     return vim.fn.expand("%:p:h", true)
   end,
