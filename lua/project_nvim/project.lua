@@ -9,10 +9,27 @@ local M = {}
 M.attached_lsp = false
 M.last_project = nil
 
+---@param client lsp.Client
+---@param buf_name string
+local function lsp_get_buf_root(client, buf_name)
+  -- LSP clients can have multiple workspace folders
+  if client.workspace_folders then
+    for _, workspace_folder in pairs(client.workspace_folders) do
+      local folder_name = vim.uri_to_fname(workspace_folder.uri)
+      if vim.startswith(buf_name, folder_name) then
+        return folder_name
+      end
+    end
+  end
+  -- Fall back to root_dir
+  return client.config.root_dir
+end
+
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
   local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
+  local buf_name = vim.api.nvim_buf_get_name(0)
   local clients = vim.lsp.buf_get_clients()
   if next(clients) == nil then
     return nil
@@ -22,7 +39,8 @@ function M.find_lsp_root()
     local filetypes = client.config.filetypes
     if filetypes and vim.tbl_contains(filetypes, buf_ft) then
       if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
-        return client.config.root_dir, client.name
+        local lsp_root = lsp_get_buf_root(client, buf_name)
+        return lsp_root, client.name
       end
     end
   end
