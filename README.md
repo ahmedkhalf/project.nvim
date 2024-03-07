@@ -121,6 +121,10 @@ use {
   -- * win
   scope_chdir = 'global',
 
+  -- Use Telescope's git_files when the project directory is a git repo
+	-- This will ignore files listed in .gitignore
+	use_git_files = false,
+
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
