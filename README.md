@@ -208,6 +208,14 @@ local recent_projects = project_nvim.get_recent_projects()
 print(vim.inspect(recent_projects))
 ```
 
+Get the project corresponding to the currently active buffer:
+
+```lua
+local project_nvim = require("project_nvim")
+local current_project = project_nvim.get_current_project()
+print(current_project)
+```
+
 ## 🤝 Contributing
 
 - All pull requests are welcome.

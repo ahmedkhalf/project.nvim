@@ -9,6 +9,8 @@ local M = {}
 M.attached_lsp = false
 M.last_project = nil
 
+
+
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
@@ -211,6 +213,15 @@ function M.get_project_root()
       end
     end
   end
+end
+
+function M.get_current_project()
+    local root_dir, _ = M.get_project_root()
+    if root_dir then
+        local project_name = root_dir:match("([^/]+)$")
+        return project_name
+    end
+    return nil
 end
 
 function M.is_file()
