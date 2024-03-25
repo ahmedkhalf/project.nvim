@@ -215,6 +215,15 @@ function M.get_project_root()
   end
 end
 
+function M.get_current_project()
+    local root_dir, _ = M.get_project_root()
+    if root_dir then
+        local project_name = path.basename(root_dir)
+        return project_name
+    end
+    return nil
+end
+
 function M.is_file()
   local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
 
