@@ -218,7 +218,7 @@ end
 function M.get_current_project()
     local root_dir, _ = M.get_project_root()
     if root_dir then
-        local project_name = path.basename(root_dir)
+        local project_name = root_dir:match("([^/]+)$")
         return project_name
     end
     return nil
