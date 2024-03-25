@@ -9,6 +9,11 @@ local M = {}
 M.attached_lsp = false
 M.last_project = nil
 
+function M.get_current_project()
+    return M.last_project
+end
+
+
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
