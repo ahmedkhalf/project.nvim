@@ -124,6 +124,9 @@ use {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- A function to call then directory is changed
+  on_chdir = nil,
 }
 ```
 

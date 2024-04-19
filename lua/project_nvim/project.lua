@@ -189,6 +189,9 @@ function M.set_pwd(dir, method)
       if config.options.silent_chdir == false then
         vim.notify("Set CWD to " .. dir .. " using " .. method)
       end
+      if config.options.on_chdir then
+        config.options.on_chdir()
+      end
     end
     return true
   end
