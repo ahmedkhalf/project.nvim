@@ -1,5 +1,4 @@
 local config = require("project_nvim.config")
-local uv = vim.loop
 local M = {}
 
 M.datapath = vim.fn.stdpath("data") -- directory
@@ -14,9 +13,9 @@ end
 
 function M.create_scaffolding(callback)
   if callback ~= nil then -- async
-    uv.fs_mkdir(M.projectpath, 448, callback)
+    vim.uv.fs_mkdir(M.projectpath, 448, callback)
   else -- sync
-    uv.fs_mkdir(M.projectpath, 448)
+    vim.uv.fs_mkdir(M.projectpath, 448)
   end
 end
 

@@ -1,5 +1,4 @@
 local path = require("project_nvim.utils.path")
-local uv = vim.loop
 local M = {}
 local is_windows = vim.fn.has('win32') or vim.fn.has('wsl')
 
@@ -10,16 +9,16 @@ M.has_watch_setup = false
 local function open_history(mode, callback)
   if callback ~= nil then -- async
     path.create_scaffolding(function(_, _)
-      uv.fs_open(path.historyfile, mode, 438, callback)
+      vim.uv.fs_open(path.historyfile, mode, 438, callback)
     end)
   else -- sync
     path.create_scaffolding()
-    return uv.fs_open(path.historyfile, mode, 438)
+    return vim.uv.fs_open(path.historyfile, mode, 438)
   end
 end
 
 local function dir_exists(dir)
-  local stat = uv.fs_stat(dir)
+  local stat = vim.uv.fs_stat(dir)
   if stat ~= nil and stat.type == "directory" then
     return true
   end
@@ -85,7 +84,7 @@ local function setup_watch()
   -- Only runs once
   if M.has_watch_setup == false then
     M.has_watch_setup = true
-    local event = uv.new_fs_event()
+    local event = vim.uv.new_fs_event()
     if event == nil then
       return
     end
@@ -105,10 +104,10 @@ function M.read_projects_from_history()
   open_history("r", function(_, fd)
     setup_watch()
     if fd ~= nil then
-      uv.fs_fstat(fd, function(_, stat)
+      vim.uv.fs_fstat(fd, function(_, stat)
         if stat ~= nil then
-          uv.fs_read(fd, stat.size, -1, function(_, data)
-            uv.fs_close(fd, function(_, _) end)
+          vim.uv.fs_read(fd, stat.size, -1, function(_, data)
+            vim.uv.fs_close(fd, function(_, _) end)
             deserialize_history(data)
           end)
         end
@@ -170,8 +169,8 @@ function M.write_projects_to_history()
     end
 
     -- Write string out to file and close
-    uv.fs_write(file, out, -1)
-    uv.fs_close(file)
+    vim.uv.fs_write(file, out, -1)
+    vim.uv.fs_close(file)
   end
 end
 

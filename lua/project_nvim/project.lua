@@ -2,7 +2,6 @@ local config = require("project_nvim.config")
 local history = require("project_nvim.utils.history")
 local glob = require("project_nvim.utils.globtopattern")
 local path = require("project_nvim.utils.path")
-local uv = vim.loop
 local M = {}
 
 -- Internal states
@@ -12,8 +11,8 @@ M.last_project = nil
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local buf_ft = vim.bo.filetype
+  local clients = vim.lsp.get_clients()
   if next(clients) == nil then
     return nil
   end
@@ -51,13 +50,13 @@ function M.find_pattern_root()
     last_dir_cache = file_dir
     curr_dir_cache = {}
 
-    local dir = uv.fs_scandir(file_dir)
+    local dir = vim.uv.fs_scandir(file_dir)
     if dir == nil then
       return
     end
 
     while true do
-      local file = uv.fs_scandir_next(dir)
+      local file = vim.uv.fs_scandir_next(dir)
       if file == nil then
         return
       end
@@ -214,7 +213,7 @@ function M.get_project_root()
 end
 
 function M.is_file()
-  local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
+  local buf_type = vim.api.nvim_get_option_value("buftype", { buf = 0 })
 
   local whitelisted_buf_type = { "", "acwrite" }
   local is_in_whitelist = false
@@ -232,6 +231,16 @@ function M.is_file()
 end
 
 function M.on_buf_enter()
+  -- if filetype is excluded, return
+  for _, filetype in pairs(config.options.exclude_chdir.filetype) do
+    if filetype == vim.bo.filetype then return end
+  end
+
+  -- if buftype is excluded, return
+  for _, buftype in pairs(config.options.exclude_chdir.buftype) do
+    if vim.bo.buftype ~= "" and buftype == vim.bo.buftype then return end
+  end
+
   if vim.v.vim_did_enter == 0 then
     return
   end
@@ -257,7 +266,7 @@ end
 function M.init()
   local autocmds = {}
   if not config.options.manual_mode then
-    autocmds[#autocmds + 1] = 'autocmd VimEnter,BufEnter * ++nested lua require("project_nvim.project").on_buf_enter()'
+    autocmds[#autocmds + 1] = 'autocmd BufReadPost * ++nested lua require("project_nvim.project").on_buf_enter()'
 
     if vim.tbl_contains(config.options.detection_methods, "lsp") then
       M.attach_to_lsp()
