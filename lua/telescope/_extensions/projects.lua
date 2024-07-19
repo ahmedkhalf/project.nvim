@@ -18,6 +18,14 @@ local history = require("project_nvim.utils.history")
 local project = require("project_nvim.project")
 local config = require("project_nvim.config")
 
+local _opts = {}
+
+-- Setup for telescope
+local function setup(opts_)
+  opts_ = opts_ or {}
+  _opts = vim.tbl_deep_extend("force", _opts, opts_)
+end
+
 ----------
 -- Actions
 ----------
@@ -142,7 +150,7 @@ end
 ---Main entrypoint for Telescope.
 ---@param opts table
 local function projects(opts)
-  opts = opts or {}
+  opts = opts and vim.tbl_deep_extend("force", _opts, opts) or opts
 
   pickers.new(opts, {
     prompt_title = "Recent Projects",
@@ -174,6 +182,7 @@ local function projects(opts)
 end
 
 return telescope.register_extension({
+  setup = setup,
   exports = {
     projects = projects,
   },
