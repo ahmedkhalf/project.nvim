@@ -60,9 +60,11 @@ local function delete_duplicates(tbl)
 end
 
 function M.delete_project(project)
-  for k, v in ipairs(M.recent_projects) do
-    if v == project.value then
-      M.recent_projects[k] = nil
+  if M.recent_projects ~= nil then
+    for k, v in ipairs(M.recent_projects) do
+      if v == project.value then
+        M.recent_projects[k] = nil
+      end
     end
   end
 end
