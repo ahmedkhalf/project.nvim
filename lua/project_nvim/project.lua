@@ -12,8 +12,8 @@ M.last_project = nil
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local buf_ft = vim.api.nvim_get_option_value("filetype", { buf = 0 })
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
   if next(clients) == nil then
     return nil
   end
@@ -176,12 +176,12 @@ function M.set_pwd(dir, method)
 
     if vim.fn.getcwd() ~= dir then
       local scope_chdir = config.options.scope_chdir
-      if scope_chdir == 'global' then
+      if scope_chdir == "global" then
         vim.api.nvim_set_current_dir(dir)
-      elseif scope_chdir == 'tab' then
-        vim.cmd('tcd ' .. dir)
-      elseif scope_chdir == 'win' then
-        vim.cmd('lcd ' .. dir)
+      elseif scope_chdir == "tab" then
+        vim.cmd("tcd " .. dir)
+      elseif scope_chdir == "win" then
+        vim.cmd("lcd " .. dir)
       else
         return
       end
@@ -214,7 +214,7 @@ function M.get_project_root()
 end
 
 function M.is_file()
-  local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
+  local buf_type = vim.api.nvim_get_option_value("buftype", { buf = 0 })
 
   local whitelisted_buf_type = { "", "acwrite" }
   local is_in_whitelist = false
@@ -251,7 +251,7 @@ end
 
 function M.add_project_manually()
   local current_dir = vim.fn.expand("%:p:h", true)
-  M.set_pwd(current_dir, 'manual')
+  M.set_pwd(current_dir, "manual")
 end
 
 function M.init()
