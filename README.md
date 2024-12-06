@@ -204,8 +204,10 @@ Get a list of recent projects:
 ```lua
 local project_nvim = require("project_nvim")
 local recent_projects = project_nvim.get_recent_projects()
+local current_project_path = project_nvim.get_current_project_path()
 
 print(vim.inspect(recent_projects))
+print(vim.inspect(current_project_path))
 ```
 
 ## 🤝 Contributing
