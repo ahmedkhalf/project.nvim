@@ -71,6 +71,7 @@ local function change_working_directory(prompt_bufnr, prompt)
   else
     actions.close(prompt_bufnr)
   end
+  _G.current_project_path = project_path
   local cd_successful = project.set_pwd(project_path, "telescope")
   return project_path, cd_successful
 end
