@@ -12,8 +12,9 @@ M.last_project = nil
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local buf_ft = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+  local clients = vim.lsp.get_clients({ buffer = bufnr })
   if next(clients) == nil then
     return nil
   end
@@ -176,12 +177,12 @@ function M.set_pwd(dir, method)
 
     if vim.fn.getcwd() ~= dir then
       local scope_chdir = config.options.scope_chdir
-      if scope_chdir == 'global' then
+      if scope_chdir == "global" then
         vim.api.nvim_set_current_dir(dir)
-      elseif scope_chdir == 'tab' then
-        vim.cmd('tcd ' .. dir)
-      elseif scope_chdir == 'win' then
-        vim.cmd('lcd ' .. dir)
+      elseif scope_chdir == "tab" then
+        vim.cmd("tcd " .. dir)
+      elseif scope_chdir == "win" then
+        vim.cmd("lcd " .. dir)
       else
         return
       end
@@ -251,7 +252,7 @@ end
 
 function M.add_project_manually()
   local current_dir = vim.fn.expand("%:p:h", true)
-  M.set_pwd(current_dir, 'manual')
+  M.set_pwd(current_dir, "manual")
 end
 
 function M.init()
