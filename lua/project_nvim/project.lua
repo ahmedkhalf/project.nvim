@@ -9,11 +9,65 @@ local M = {}
 M.attached_lsp = false
 M.last_project = nil
 
+---@alias buf_name string this is the name of the buffer (the path/filename that is opened in the buffer)
+---@alias buf_file_location string this is the buf_name minus the filename (just the path)
+
+--- regex is relatively expensive, so store buf_file_path in map
+---@type table<buf_name, buf_file_location>
+local buf_name_to_file_path_map = {}
+
+vim.api.nvim_create_autocmd("BufDelete", {
+  pattern = "*",
+  ---@param ev? vim.api.keyset.create_autocmd
+  callback = function(ev)
+    local buf_name = vim.api.nvim_buf_get_name(ev.buf)
+    buf_name_to_file_path_map[buf_name] = nil
+  end,
+})
+
+---@param client vim.lsp.Client
+---@param buf_name buf_name
+function M._lsp_get_buf_root(client, buf_name)
+  local buf_file_path = buf_name_to_file_path_map[buf_name]
+  if not buf_file_path then
+    -- strip off filename
+    buf_file_path                       = buf_name:match('(.*)/.*$')
+    buf_name_to_file_path_map[buf_name] = buf_file_path
+  else
+  end
+
+  local root_dir
+  -- LSP clients can have multiple workspace folders
+  if client.workspace_folders then
+    for _, workspace_folder in pairs(client.workspace_folders) do
+      local folder_name = vim.uri_to_fname(workspace_folder.uri)
+      if folder_name and vim.startswith(buf_file_path, folder_name) then
+        if #folder_name == #buf_file_path then
+          return folder_name
+        end
+        if not root_dir then
+          root_dir = folder_name
+        elseif #folder_name > #root_dir then
+          root_dir = folder_name
+        end
+      end
+    end
+  end
+
+  if root_dir then
+    return root_dir
+  end
+
+  -- Fall back to root_dir
+  return client.config.root_dir
+end
+
 function M.find_lsp_root()
   -- Get lsp client for current buffer
   -- Returns nil or string
-  local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
-  local clients = vim.lsp.buf_get_clients()
+  local buf_ft = vim.api.nvim_get_option_value('filetype', { buf = 0 })
+  local buf_name = vim.api.nvim_buf_get_name(0)
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
   if next(clients) == nil then
     return nil
   end
@@ -22,7 +76,8 @@ function M.find_lsp_root()
     local filetypes = client.config.filetypes
     if filetypes and vim.tbl_contains(filetypes, buf_ft) then
       if not vim.tbl_contains(config.options.ignore_lsp, client.name) then
-        return client.config.root_dir, client.name
+        local lsp_root = M._lsp_get_buf_root(client, buf_name)
+        return lsp_root, client.name
       end
     end
   end
@@ -214,7 +269,7 @@ function M.get_project_root()
 end
 
 function M.is_file()
-  local buf_type = vim.api.nvim_buf_get_option(0, "buftype")
+  local buf_type = vim.api.nvim_get_option_value('buftype', { buf = 0 })
 
   local whitelisted_buf_type = { "", "acwrite" }
   local is_in_whitelist = false
@@ -270,7 +325,7 @@ function M.init()
   ]])
 
   autocmds[#autocmds + 1] =
-    'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
+  'autocmd VimLeavePre * lua require("project_nvim.utils.history").write_projects_to_history()'
 
   vim.cmd([[augroup project_nvim
             au!
