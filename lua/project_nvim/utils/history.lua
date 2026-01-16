@@ -72,7 +72,7 @@ local function deserialize_history(history_data)
   -- split data to table
   local projects = {}
   for s in history_data:gmatch("[^\r\n]+") do
-    if not path.is_excluded(s) and (not config.options.check_dir_exists or dir_exists(s)) then
+    if not path.is_excluded(s) and (not config.options.remove_missing_dirs or dir_exists(s)) then
       table.insert(projects, s)
     end
   end
@@ -131,7 +131,7 @@ local function sanitize_projects()
 
   local real_tbl = {}
   for _, dir in ipairs(tbl) do
-    if not config.options.check_dir_exists or dir_exists(dir) then
+    if not config.options.remove_missing_dirs or dir_exists(dir) then
       table.insert(real_tbl, dir)
     end
   end

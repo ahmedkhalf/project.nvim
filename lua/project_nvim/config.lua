@@ -41,8 +41,9 @@ M.defaults = {
   -- telescope
   datapath = vim.fn.stdpath("data"),
 
-  -- When set to true, checking if a project directory exists when reading/writing history
-  check_dir_exists = true,
+  -- When set to true, the plugin will check if a project directory exists
+  -- when reading/writing history, and remove it if it doesn't.
+  remove_missing_dirs = true,
 }
 
 ---@type ProjectOptions
