@@ -1,4 +1,5 @@
 local path = require("project_nvim.utils.path")
+local config = require("project_nvim.config")
 local uv = vim.loop
 local M = {}
 local is_windows = vim.fn.has('win32') or vim.fn.has('wsl')
@@ -71,7 +72,7 @@ local function deserialize_history(history_data)
   -- split data to table
   local projects = {}
   for s in history_data:gmatch("[^\r\n]+") do
-    if not path.is_excluded(s) then
+    if not path.is_excluded(s) and (not config.options.check_dir_exists or dir_exists(s)) then
       table.insert(projects, s)
     end
   end
@@ -128,7 +129,14 @@ local function sanitize_projects()
 
   tbl = delete_duplicates(tbl)
 
-  return tbl
+  local real_tbl = {}
+  for _, dir in ipairs(tbl) do
+    if not config.options.check_dir_exists or dir_exists(dir) then
+      table.insert(real_tbl, dir)
+    end
+  end
+
+  return real_tbl
 end
 
 function M.get_recent_projects()

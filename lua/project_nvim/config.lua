@@ -40,6 +40,9 @@ M.defaults = {
   -- Path where project.nvim will store the project history for use in
   -- telescope
   datapath = vim.fn.stdpath("data"),
+
+  -- When set to true, checking if a project directory exists when reading/writing history
+  check_dir_exists = true,
 }
 
 ---@type ProjectOptions
